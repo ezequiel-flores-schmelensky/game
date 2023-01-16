@@ -6,7 +6,7 @@ This game is about a golden retriever dog whose main objective is to recover its
 Map scrolling will be top/down, nevertheless, once the maximum top is reached the screen will keep in that position until the boss is defeated or the dog loses its all health. The main character will have roar powers, which will be 3 waves in mouse direction. They could beat enemies. In addition some pawer ups will be left randomly by enemies to help the protagonist to rescue its bone.
 
 
-##Overview
+## Overview
 
 A summary of the gameplay is showed in the next picture, it includes almost all characters, powers, and obstacles. As the player is going up bullets (dove-po, cat-bullet, web) speed increases.  
 
@@ -16,24 +16,24 @@ The following image illustrates the final stage, final boss appears there, in ad
 
 ![alt text](img/final.PNG)
 
-##Main Character
+## Main Character
 
-##Sketch of Main Character
+## Sketch of Main Character
 
-##Opponents
+## Opponents
 
-##Sketch of Opponents
+## Sketch of Opponents
 
 
-##Environment
+## Environment
 
-##Sketch of World
+## Sketch of World
 The map is the living room where Dog’s family live where you can find some furniture as obstacle. 
 
-##Menus
+## Menus
 Main menu with 3 levels of difficulty to choose
 
-##Controls
+## Controls
 Arrow top
 Arrow bottom
 Arrow left
@@ -44,8 +44,8 @@ P key
 Q key
 E key 
 
-##Sounds
+## Sounds
 When a gun hit an enemy
 
-##Summary
+## Summary
 
