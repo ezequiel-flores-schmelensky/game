@@ -13,21 +13,24 @@ Map scrolling will be top/down, nevertheless, once the maximum top is reached th
 A summary of the gameplay is showed in the next picture (Figure 1), it includes almost all characters, powers, and obstacles. As the player is going up bullets (dove-po, cat-bullet, web) speed increases.   
 
 ![alt text](img/normalgame.PNG)
+
 Figure 1. Gameplay Example.
 
 The following image (Figure 2) illustrates the final stage, final boss appears there, in addition all power-ups, bowling ball behaviour, and prize. 
 
 ![alt text](img/final.PNG)
+
 Figure 2. Final Stage.
 
 ## Main Character
 
 ![alt text](img/samira.png)
 
+Figure 3. Samira.
+
 The protagonist of the game is a golden retrieve dog whose name is Samira (Figure 3). The dog can bark to hit enemies; during the game, the main character can find some power-ups (Table 1) that stronger its roar, recover its life, and wrap enemies to freeze them. It is a third person game.
 
 ![alt text](img/Table1.PNG)
-Table 1. Power-ups.
 
 Samira is a lovely dog whose prize (bone) was kidnapped by the house’s cat and its collaborators. 
 She is the youngest pet in the house for that reason she receives more attention, that is way her prize was kidnapped by the cat. She needs to keep clean her reputation as house guardian, being clean, scaring outsider, controlling the big cat (Ramon), and recovering her bone.
@@ -38,7 +41,6 @@ She is the youngest pet in the house for that reason she receives more attention
 In Table 2, all enemies will be listed.
 
 ![alt text](img/Table2.PNG)
-Table 2. List of enemies.
 
 Ramon was the unique pet within the family for 6 years until Samira was adopted. He felt that he was ignored, for that reason, Ramon changed his name to Big Cat and organized the plan to damage Samira reputation.  
 
@@ -47,9 +49,11 @@ Ramon was the unique pet within the family for 6 years until Samira was adopted.
 The map is a large living room (Figure 4) full of obstacles (Figure 5) and enemies, the first stage is top / down scenario; once the player reaches the maximum top scroll, the final stage keep fix until dog wins of is defeated.
 
 ![alt text](img/Figure4.PNG)
+
 Figure 4. Example of the map view.
 
 ![alt text](img/obstacles.png)
+
 Figure 5. All possible obstacles.
 
 ## Sketch of World
