@@ -7,29 +7,39 @@ Font    Mario      ../assets/fonts/mario.ttf
 Font    Megaman    ../assets/fonts/megaman.ttf
 
 
-Texture Entities    ../assets/media/Entities.png
-Texture Jungle      ../assets/media/Jungle.png
-Texture Finish      ../assets/media/FinishLine.png
+Texture Entities    ../assets/media/game_entities.png
+Texture Livingroom  ../assets/media/livingroom.PNG
 
 
-JSON                ../assets/media/Entities.json
+JSON                ../assets/media/game_entities.json
 
 
 #
 #  Animation    Name            Texture     Speed   Repeats
-Animation       EagleStr        Entities    1        yes
-Animation       EagleRgt        Entities    1        yes
-Animation       EagleLft        Entities    1        yes
+Animation       Dog             Entities    1        yes
+Animation       DogLeft         Entities    1        yes
+Animation       DogRight        Entities    1        yes
+Animation       DogTop          Entities    1        yes
+Animation       BigCat          Entities    1        yes
+Animation       Spider          Entities    1        yes
+Animation       Dove            Entities    1        yes
+Animation       GangsterCat     Entities    1        yes
+Animation       BowlingBall     Entities    1        yes
+Animation       Web             Entities    1        yes
+Animation       DovePo          Entities    1        yes
 Animation       Bullet          Entities    1        yes
-Animation       Missile         Entities    1        yes
-Animation       explosion       Entities    12       no
-Animation       FireRate        Entities    1        yes
-Animation       FireSpread      Entities    1        yes
-Animation       HealthRefill    Entities    1        yes
-Animation       MissileRefill   Entities    1        yes
-Animation       Particle        Entities    1        yes
-Animation       Raptor          Entities    1        yes
-Animation       Avenger         Entities    1        yes
+Animation       PowerUp1        Entities    1        yes
+Animation       PowerUp2        Entities    1        yes
+Animation       PowerUp3        Entities    1        yes
+Animation       RoarBlue        Entities    1        yes
+Animation       RoarRed         Entities    1        yes
+Animation       Bone            Entities    1        yes
+Animation       CoffeTable      Entities    1        yes
+Animation       Lamp            Entities    1        yes
+Animation       SillonLarge     Entities    1        yes
+Animation       Tv              Entities    1        yes
+Animation       Armchair        Entities    1        yes
+Animation       Plant           Entities    1        yes
 
 
 #

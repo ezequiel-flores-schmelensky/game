@@ -16,7 +16,7 @@
 #include "SoundPlayer.h"
 
 //Game Levels Scene
-//#include "Scene_Easy.h"
+#include "Scene_Easy.h"
 //#include "Scene_Normal.h"
 
 
@@ -45,7 +45,7 @@ void GameEngine::createMenu() {
     m_sceneMap[SceneID::MENU] = menuScene;
 
     // add items to menu_scene
-    menuScene->registerItem(SceneID::NONE, "Easy");
+    menuScene->registerItem(SceneID::EASY, "Easy");
     menuScene->registerItem(SceneID::NONE, "Normal");
     menuScene->registerItem(SceneID::NONE, "Hard");
 }
@@ -57,10 +57,10 @@ void GameEngine::createFactories() {
                 return std::make_shared<Scene_Menu>(this);
             });
 
-    //m_factories[SceneID::GEO] = std::function<Sptr()> (
-    //        [this]() -> Sptr {
-    //            return std::make_shared<Scene_Game>(this, "../assets/level1.txt");
-    //        });
+    m_factories[SceneID::EASY] = std::function<Sptr()> (
+            [this]() -> Sptr {
+                return std::make_shared<Scene_Easy>(this, "../assets/easy.txt");
+            });
 
     //m_factories[SceneID::FTR] = std::function<Sptr()> (
     //        [this]() -> Sptr {
@@ -89,7 +89,7 @@ void GameEngine::init(const std::string &configPath) {
                 std::string key, path;
                 config >> key >> path;
 
-                SoundPlayer::getInstance().loadBuffer(key, path);
+                //SoundPlayer::getInstance().loadBuffer(key, path);
             }
             config >> token;
         }
@@ -101,9 +101,9 @@ void GameEngine::init(const std::string &configPath) {
 
 void GameEngine::run() {
 
-    MusicPlayer::getInstance().play("menuTheme");
+    //MusicPlayer::getInstance().play("menuTheme");
     //MusicPlayer::getInstance().setVolume(10);
-    MusicPlayer::getInstance().setVolume(2);
+    //MusicPlayer::getInstance().setVolume(2);
 
     sf::Clock clock;
     sf::Time timeSinceLastUpdate{sf::Time::Zero};

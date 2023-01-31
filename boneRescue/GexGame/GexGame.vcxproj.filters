@@ -39,10 +39,10 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Scene_Easy.cpp">
+    <ClCompile Include="Scene_Normal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Scene_Normal.cpp">
+    <ClCompile Include="Scene_Easy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scene_Menu.cpp">
@@ -86,10 +86,10 @@
     <ClInclude Include="Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Scene_Easy.h">
+    <ClInclude Include="Scene_Normal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Scene_Normal.h">
+    <ClInclude Include="Scene_Easy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Scene_Menu.h">

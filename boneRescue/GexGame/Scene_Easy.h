@@ -15,48 +15,92 @@
 //  BUG
 //  list any and all bugs in your code 
 
-#ifndef SFMLCLASS_SCENE_GAME_H
-#define SFMLCLASS_SCENE_GAME_H
+#ifndef SFMLCLASS_SCENE_GEXFIGHTER_H
+#define SFMLCLASS_SCENE_GEXFIGHTER_H
 
 #include "Scene.h"
+#include <map>
+#include <array>
+
+
+struct EnemyConfig {
+    std::array<float, 5> dirs;
+    std::array<sf::Time, 5> times;
+};
+
+using String = std::string;
 
 class Scene_Easy : public Scene {
 
 private:
-    std::shared_ptr<Entity>		m_player;
-    std::string					m_levelPath;
+    std::shared_ptr<Entity>		    m_player;
 
-    bool						m_drawTextures{true};
-    bool						m_drawAABB{false};
-    bool				        m_drawGrid{false};
+    std::map<String, sf::IntRect>   m_textRects;
 
-    void	                    onEnd() override;
+    sf::View                        m_worldView;
+    sf::FloatRect                   m_worldBounds;
+
+    float                           m_scrollSpeed;
+    float                           m_playerSpeed;
+    float                           m_enemySpeed{100.f};
+    std::map<String, EnemyConfig>   m_enemyConfig;
+
+    float                           m_bulletSpeed;
+    float                           m_missileSpeed;
+    sf::Time                        m_fireInterval{sf::seconds(5)};
+
+    sf::Vector2f                    m_spawnPosition;
+    sf::Vector2f                    m_spawnPlayerPosition;
+    bool						    m_drawTextures{true};
+    bool						    m_drawAABB{false};
+    bool				            m_drawGrid{false};
+
+    void	                        onEnd() override;
 
     //systems
-    void                        sMovement(sf::Time dt);
-    void                        sCollisions();
-    void                        sUpdate(sf::Time dt);
-
+    void                            sMovement(sf::Time dt);
+    void                            sCollisions();
+    void                            sUpdate(sf::Time dt);
+    void                            sGunUpdate(sf::Time dt);
+    void                            sAnimation(sf::Time dt);
+    void                            sGuideMissiles(sf::Time dt);
+    void                            sAutoPilot(const sf::Time &dt);
+    void                            sRemoveEntitiesOutOfGame();
 
     // helper functions
-    void                        registerActions();
-    void                        init(const std::string& configPath);
-    void                        loadFromFile(const std::string &configPath);
-    void                        spawnPlayer();
-    void                        drawAABB();
-    void                        keepEntitiesInBounds();
-    void                        adjustPlayerPosition();
-    sf::FloatRect               getViewBounds();
-
+    void                            spawnEnemies();
+    sf::Vector2f                    findClosestEnemy(sf::Vector2f mPos);
+    void                            spawnEnemy( std::string type, sf::Vector2f pos);
+    void                            spawnEnemies(std::string type, float offset, size_t numPlanes);
+    void                            createBullet(sf::Vector2f pos, bool isEnemy);
+    void                            registerActions();
+    void                            init(const std::string& configPath);
+    void                            loadFromFile(const std::string &configPath);
+    void                            spawnPlayer();
+    void                            drawAABB();
+    void                            keepEntitiesInBounds();
+    void                            adjustPlayer();
+    sf::FloatRect                   getViewBounds();
+    void                            fireBullet();
+    void                            fireMissile();
+    void                            droppingAPickup(sf::Vector2f pos);
+    void                            checkMissileCollision();
+    void                            checkBulletCollision();
+    void                            checkPlaneCollision();
+    void                            checkPickupCollision();
+    void                            checkIfDead(NttPtr e);
 
 public:
-    Scene_Easy(GameEngine* gameEngine, const std::string& levelPath);
+    Scene_Easy(GameEngine* gameEngine, const std::string& configPath);
 
-    void		                update(sf::Time dt) override;
-    void		                sDoAction(const Action& action) override;
-    void		                sRender() override;
+    void		                    update(sf::Time dt) override;
+    void		                    sDoAction(const Action& action) override;
+    void		                    sRender() override;
 
+
+    void playerMovement();
+    void checkPlayerState();
 };
 
 
-#endif //SFMLCLASS_SCENE_GAME_H
+#endif //SFMLCLASS_SCENE_GEXFIGHTER_H
