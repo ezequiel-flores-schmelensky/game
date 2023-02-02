@@ -16,6 +16,10 @@ float dist(const sf::Vector2f& a, const sf::Vector2f& b) {
     return length(b-a);
 }
 
+float absoluteValue(const float& a, const float& b) {
+    return std::sqrtf((a - b) * (a - b));
+}
+
 sf::Vector2f normalize(sf::Vector2f v) {
     static const float epsi = 0.0001;
     float d = length(v);

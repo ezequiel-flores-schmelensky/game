@@ -21,6 +21,7 @@
 #include "Scene.h"
 #include <map>
 #include <array>
+#include <bitset>
 
 
 struct EnemyConfig {
@@ -39,6 +40,7 @@ private:
 
     sf::View                        m_worldView;
     sf::FloatRect                   m_worldBounds;
+    std::map<std::string, bool>     m_stopers{ {"T", false}, {"R", false}, {"L", false}, {"B", false} }; //top-right-left-bottom
 
     float                           m_scrollSpeed;
     float                           m_playerSpeed;
@@ -79,6 +81,7 @@ private:
     void                            spawnPlayer();
     void                            drawAABB();
     void                            keepEntitiesInBounds();
+    void                            adjustScroll(sf::Time& dt);
     void                            adjustPlayer();
     sf::FloatRect                   getViewBounds();
     void                            fireBullet();
@@ -86,7 +89,7 @@ private:
     void                            droppingAPickup(sf::Vector2f pos);
     void                            checkMissileCollision();
     void                            checkBulletCollision();
-    void                            checkPlaneCollision();
+    void                            checkDogCollision();
     void                            checkPickupCollision();
     void                            checkIfDead(NttPtr e);
 

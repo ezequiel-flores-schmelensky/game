@@ -149,7 +149,7 @@ void Scene_Easy::playerMovement() {
     // no movement if player is dead
     if (m_player->hasComponent<CState>() && m_player->getComponent<CState>().state == "dead")
         return;
-
+   
     // player movement
     sf::Vector2f pv;
     auto &pInput = m_player->getComponent<CInput>();
@@ -157,6 +157,13 @@ void Scene_Easy::playerMovement() {
     if (pInput.right) pv.x += 1;
     if (pInput.up) pv.y -= 1;
     if (pInput.down) pv.y += 1;
+    
+    if (m_stopers["T"] && pInput.up) pv.y = 0;
+    if (m_stopers["B"] && pInput.down) pv.y = 0;
+    if (m_stopers["L"] && pInput.left) pv.x = 0;
+    if (m_stopers["R"] && pInput.right) pv.x = 0;
+
+    
     pv = normalize(pv);
     m_player->getComponent<CTransform>().vel = m_playerSpeed * pv;
 
@@ -164,10 +171,10 @@ void Scene_Easy::playerMovement() {
 
 
 void Scene_Easy::sCollisions() {
-    checkMissileCollision();
-    checkBulletCollision();
-    checkPlaneCollision();
-    checkPickupCollision();
+    checkDogCollision();
+    //checkMissileCollision();
+    //checkBulletCollision();
+    //checkPickupCollision();
 }
 
 
@@ -246,39 +253,41 @@ void Scene_Easy::checkPickupCollision() {// check for plane collision
     }
 }
 
-void Scene_Easy::checkPlaneCollision() {// check for plane collision
+void Scene_Easy::checkDogCollision() {// check for obstacle collision
 
     if (m_player->hasComponent<CCollision>()) {
-        auto pPos = m_player->getComponent<CTransform>().pos;
-        auto pCr = m_player->getComponent<CCollision>().radius;
+        auto& dPos = m_player->getComponent<CTransform>().pos;
+        auto& dCr = m_player->getComponent<CCollision>().radius;
+        //m_obstacle = false;
 
-        for (auto e: m_entityManager.getEntities("enemy")) {
+        m_stopers["T"] = false; 
+        m_stopers["R"] = false;
+        m_stopers["L"] = false;
+        m_stopers["B"] = false;
+
+
+        for (auto e: m_entityManager.getEntities("obstacle")) {
             if (e->hasComponent<CTransform>() && e->hasComponent<CCollision>()) {
-                auto ePos = e->getComponent<CTransform>().pos;
-                auto eCr = e->getComponent<CCollision>().radius;
+                auto oPos = e->getComponent<CTransform>().pos;
+                auto oCr  = e->getComponent<CCollision>().radius;
 
+                //if (dist(oPos, dPos) < (oCr + dCr)) {
+                //    m_obstacle = true;
+                //}
                 // planes have collided
-                if (dist(ePos, pPos) < (eCr + pCr)) {
-                    auto &pHP = m_player->getComponent<CHealth>().hp;
-                    auto &eHP = e->getComponent<CHealth>().hp;
-
-                    // however many HP the plane has left,
-                    // that's how much damage it inflicts on other plane
-                    int tmpHP = pHP;
-                    pHP -= eHP;
-                    eHP -= tmpHP;
-
-                    checkIfDead(e);
-                    int hPickup = hasPickup(rng);
-                    if (e->getComponent<CState>().state == "dead" && hPickup == 1) {
-                        droppingAPickup(e->getComponent<CTransform>().pos);
-                    }
-
-                    checkIfDead(m_player);
-                    if (m_player->getComponent<CState>().state == "dead") {
-                        setPaused(true);
-                    }
-
+                // left collision
+                if (oPos.x - dPos.x < (oCr + dCr) && oPos.x - dPos.x >= 0 && absoluteValue(dPos.y, oPos.y) < (oCr + dCr)) {
+                    m_stopers["R"] = true;
+                }
+                if (dPos.x - oPos.x < (oCr + dCr) && dPos.x - oPos.x >= 0 && absoluteValue(dPos.y, oPos.y) < (oCr + dCr)) {
+                    m_stopers["L"] = true;
+                }
+                // Bottom
+                if (oPos.y - dPos.y < (oCr + dCr) && oPos.y - dPos.y >= 0 && absoluteValue(dPos.x, oPos.x) < (oCr + dCr)) {
+                    m_stopers["B"] = true;
+                }
+                if (dPos.y - oPos.y < (oCr + dCr) && dPos.y - oPos.y >= 0 && absoluteValue(dPos.x, oPos.x) < (oCr + dCr)) {
+                    m_stopers["T"] = true;
                 }
             }
         }
@@ -407,7 +416,7 @@ void Scene_Easy::spawnPlayer() {
 
     m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Dog"));
     m_player->addComponent<CState>("straight");
-    m_player->addComponent<CCollision>(20);
+    m_player->addComponent<CCollision>(30);
     m_player->addComponent<CInput>();
     m_player->addComponent<CMissiles>();
     m_player->addComponent<CHealth>().hp = 100;
@@ -446,13 +455,25 @@ void Scene_Easy::adjustPlayer() {
 
     auto &pos = m_player->getComponent<CTransform>().pos;
     auto cr = m_player->getComponent<CCollision>().radius;
-
+    
     pos.x = std::max(pos.x, vb.left + cr);
     pos.x = std::min(pos.x, vb.left + vb.width - cr);
     pos.y = std::max(pos.y, vb.top + cr);
     pos.y = std::min(pos.y, vb.top + vb.height - cr);
 }
 
+void Scene_Easy::adjustScroll(sf::Time& dt) {
+    auto vb = getViewBounds();
+    auto& pos = m_player->getComponent<CTransform>().pos;
+    auto cr = m_player->getComponent<CCollision>().radius;
+
+    if (pos.y - 100 < vb.top)
+        m_worldView.move(0.f, m_scrollSpeed * dt.asSeconds() * -1);
+    if (pos.y + 100 > vb.top + vb.height - cr && pos.y < m_worldBounds.height - 100 - cr)
+        m_worldView.move(0.f, m_scrollSpeed * dt.asSeconds());
+
+    auto y = m_worldView.getCenter().y;
+}
 
 void Scene_Easy::checkPlayerState() {// set the player state
     if (m_player->hasComponent<CState>()) {
@@ -497,20 +518,19 @@ void Scene_Easy::update(sf::Time dt) {
         return;
 
     m_entityManager.update();
-    m_worldView.move(0.f, m_scrollSpeed * dt.asSeconds() * -1);
-    auto y = m_worldView.getCenter().y;
 
+    adjustScroll(dt);
     adjustPlayer();
     checkPlayerState();
     sMovement(dt);
     sCollisions();
-    sGunUpdate(dt);
+   /*sGunUpdate(dt);
     sAnimation(dt);
     sGuideMissiles(dt);
     sAutoPilot(dt);
     spawnEnemies();
 
-    sRemoveEntitiesOutOfGame();
+    sRemoveEntitiesOutOfGame();*/
 }
 
 
