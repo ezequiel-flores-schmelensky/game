@@ -12,6 +12,8 @@
 float length(const sf::Vector2f& v);
 float dist(const sf::Vector2f& a, const sf::Vector2f& b);
 float absoluteValue(const float& a, const float& b);
+bool  collide(float oFarther, float oCloser, float mCloser);
+
 
 sf::Vector2f normalize(sf::Vector2f v);
 float bearing(const sf::Vector2f& v);

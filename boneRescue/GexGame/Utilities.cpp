@@ -20,6 +20,10 @@ float absoluteValue(const float& a, const float& b) {
     return std::sqrtf((a - b) * (a - b));
 }
 
+bool collide(float oFarther, float oCloser, float mCloser) {
+    return ((oFarther - oCloser) <= mCloser && (oFarther - oCloser) > 1.f);
+}
+
 sf::Vector2f normalize(sf::Vector2f v) {
     static const float epsi = 0.0001;
     float d = length(v);

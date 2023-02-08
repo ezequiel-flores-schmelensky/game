@@ -14,10 +14,10 @@ Bkg Livingroom 	 0 0
 ##Directions      Raptor    100 0.5    0 1     -100 1   0    1     100 0.5
 ##Directions      Avenger   70 1.5   -70 1     0    3   70 1.5   -70     1
 
-## Ostacles     Type            Rotation     xPos       yPos   Cr
-Obstacle	CoffeTable         0	     700        6700	40
-Obstacle        Lamp               0	     900        6840    20
-Obstacle        SillonLarge        0         640        6520	40
-Obstacle        Tv                 0         300        6600	40
-Obstacle        Armchair           0         120        6700	40
-Obstacle        Plant              0         900        6664	20
+## Ostacles     Type            Rotation     xPos       yPos   Cr   width  height
+Obstacle	CoffeTable         0	     700        6700	40  100    100
+Obstacle        Lamp               0	     900        6840    20  100    100
+Obstacle        SillonLarge        0         640        6520	40  100    100
+Obstacle        Tv                 0         315        6600	40  100    100
+Obstacle        Armchair           0         120        6700	40  100    100
+Obstacle        Plant              0         900        6664	20  100    100

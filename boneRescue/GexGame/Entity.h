@@ -26,7 +26,7 @@
 // forward declarations
 class EntityManager;
 
-using ComponentTuple = std::tuple<CSprite, CShape, CTransform, CState,
+using ComponentTuple = std::tuple<CSprite, CShape, CRectShape, CTransform, CState,
 CCollision, CHealth, CInput, CGun, CAnimation, CMissiles, CAutoPilot, CPickup>;
 
 class Entity {
