@@ -283,7 +283,7 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
                 if (dRect.intersects(oRect)) {
                     //Right;
                     if (collide(oRect.left, dRect.left, dRect.width) &&
-                        absoluteValue(dPos.y, oPos.y) < (oRect.height/2.f + dRect.height / 2.f - 15.f)) {
+                        absoluteValue(dPos.y, oPos.y) < (oRect.height /2.f + dRect.height / 2.f - 15.f)) {
                         m_stopers["R"] = true;
                     }
                     if (collide(dRect.left, oRect.left, oRect.width) &&
@@ -395,25 +395,25 @@ void Scene_Easy::registerActions() {
 
     //TODO register action FIRE to fire the gun
 
-    registerAction(sf::Keyboard::P, "PAUSE");
+    registerAction(sf::Keyboard::P,      "PAUSE");
     registerAction(sf::Keyboard::Escape, "BACK");
-    registerAction(sf::Keyboard::Q, "QUIT");
+    registerAction(sf::Keyboard::Q,      "QUIT");
 
     registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");
     registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");
     registerAction(sf::Keyboard::G, "TOGGLE_GRID");
 
-    registerAction(sf::Keyboard::A, "LEFT");
-    registerAction(sf::Keyboard::Left, "LEFT");
-    registerAction(sf::Keyboard::D, "RIGHT");
+    registerAction(sf::Keyboard::A,     "LEFT");
+    registerAction(sf::Keyboard::Left,  "LEFT");
+    registerAction(sf::Keyboard::D,     "RIGHT");
     registerAction(sf::Keyboard::Right, "RIGHT");
-    registerAction(sf::Keyboard::W, "UP");
-    registerAction(sf::Keyboard::Up, "UP");
-    registerAction(sf::Keyboard::S, "DOWN");
-    registerAction(sf::Keyboard::Down, "DOWN");
+    registerAction(sf::Keyboard::W,     "UP");
+    registerAction(sf::Keyboard::Up,    "UP");
+    registerAction(sf::Keyboard::S,     "DOWN");
+    registerAction(sf::Keyboard::Down,  "DOWN");
 
     registerAction(sf::Keyboard::Space, "FIRE");
-    registerAction(sf::Keyboard::M, "LAUNCH");
+    registerAction(sf::Keyboard::M,     "LAUNCH");
 }
 
 
@@ -466,10 +466,10 @@ void Scene_Easy::adjustPlayer() {
     auto &pos = m_player->getComponent<CTransform>().pos;
     auto cr = m_player->getComponent<CCollision>().radius;
     
-    pos.x = std::max(pos.x, vb.left + cr);
-    pos.x = std::min(pos.x, vb.left + vb.width - cr);
+    pos.x = std::max(pos.x, vb.left + cr + 100);
+    pos.x = std::min(pos.x, vb.left + vb.width - cr - 110);
     pos.y = std::max(pos.y, vb.top + cr);
-    pos.y = std::min(pos.y, vb.top + vb.height - cr);
+    pos.y = std::min(pos.y, vb.top + vb.height - cr - 70);
 }
 
 void Scene_Easy::adjustScroll(sf::Time& dt) {

@@ -15,9 +15,79 @@ Bkg Livingroom 	 0 0
 ##Directions      Avenger   70 1.5   -70 1     0    3   70 1.5   -70     1
 
 ## Ostacles     Type            Rotation     xPos       yPos   Cr   width  height
-Obstacle	CoffeTable         0	     700        6700	40  100    100
 Obstacle        Lamp               0	     900        6840    20  100    100
-Obstacle        SillonLarge        0         640        6520	40  100    100
-Obstacle        Tv                 0         315        6600	40  100    100
+Obstacle	CoffeTable         0	     700        6700	40  100    100
 Obstacle        Armchair           0         120        6700	40  100    100
 Obstacle        Plant              0         900        6664	20  100    100
+Obstacle        Tv                 0         315        6600	40  100    100
+Obstacle        SillonLarge        0         640        6520	40  100    100
+Obstacle        Armchair           0         510        6320	40  100    100
+Obstacle        SillonLarge        0         170        6190	40  100    100
+Obstacle        Tv                 0         850        6190	40  100    100
+########
+Obstacle        Lamp               0	     900        6040    20  100    100
+Obstacle	CoffeTable         0	     700        5900	40  100    100
+Obstacle        Armchair           0         120        5900	40  100    100
+Obstacle        Plant              0         900        5864	20  100    100
+Obstacle        Tv                 0         315        5800	40  100    100
+Obstacle        SillonLarge        0         640        5720	40  100    100
+Obstacle        Armchair           0         510        5520	40  100    100
+Obstacle        SillonLarge        0         170        5390	40  100    100
+Obstacle        Tv                 0         850        5390	40  100    100
+########
+Obstacle        Lamp               0	     900        5240    20  100    100
+Obstacle	CoffeTable         0	     700        5100	40  100    100
+Obstacle        Armchair           0         120        5100	40  100    100
+Obstacle        Plant              0         900        5064	20  100    100
+Obstacle        Tv                 0         315        5000	40  100    100
+Obstacle        SillonLarge        0         640        4920	40  100    100
+Obstacle        Armchair           0         510        4720	40  100    100
+Obstacle        SillonLarge        0         170        4590	40  100    100
+Obstacle        Tv                 0         850        4590	40  100    100
+########
+Obstacle        Lamp               0	     900        4440    20  100    100
+Obstacle	CoffeTable         0	     700        4300	40  100    100
+Obstacle        Armchair           0         120        4300	40  100    100
+Obstacle        Plant              0         900        4264	20  100    100
+Obstacle        Tv                 0         315        4200	40  100    100
+Obstacle        SillonLarge        0         640        4120	40  100    100
+Obstacle        Armchair           0         510        3920	40  100    100
+Obstacle        SillonLarge        0         170        3790	40  100    100
+Obstacle        Tv                 0         850        3790	40  100    100
+########
+Obstacle        Lamp               0	     900        3640    20  100    100
+Obstacle	CoffeTable         0	     700        3500	40  100    100
+Obstacle        Armchair           0         120        3500	40  100    100
+Obstacle        Plant              0         900        3464	20  100    100
+Obstacle        Tv                 0         315        3400	40  100    100
+Obstacle        SillonLarge        0         640        3320	40  100    100
+Obstacle        Armchair           0         510        3120	40  100    100
+Obstacle        SillonLarge        0         170        2990	40  100    100
+Obstacle        Tv                 0         850        2990	40  100    100
+########
+Obstacle        Lamp               0	     900        2840    20  100    100
+Obstacle	CoffeTable         0	     700        2700	40  100    100
+Obstacle        Armchair           0         120        2700	40  100    100
+Obstacle        Plant              0         900        2664	20  100    100
+Obstacle        Tv                 0         315        2600	40  100    100
+Obstacle        SillonLarge        0         640        2520	40  100    100
+Obstacle        Armchair           0         510        2320	40  100    100
+Obstacle        SillonLarge        0         170        2190	40  100    100
+Obstacle        Tv                 0         850        2190	40  100    100
+########
+Obstacle        Lamp               0	     900        2040    20  100    100
+Obstacle	CoffeTable         0	     700        1900	40  100    100
+Obstacle        Armchair           0         120        1900	40  100    100
+Obstacle        Plant              0         900        1864	20  100    100
+Obstacle        Tv                 0         315        1800	40  100    100
+Obstacle        SillonLarge        0         640        1720	40  100    100
+Obstacle        Armchair           0         510        1520	40  100    100
+Obstacle        SillonLarge        0         170        1390	40  100    100
+Obstacle        Tv                 0         850        1390	40  100    100
+########
+Obstacle        Lamp               0	     900        1240    20  100    100
+Obstacle	CoffeTable         0	     700        1100	40  100    100
+Obstacle        Armchair           0         120        1100	40  100    100
+Obstacle        Plant              0         900        1064	20  100    100
+Obstacle        Tv                 0         315        1000	40  100    100
+########
