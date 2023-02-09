@@ -71,12 +71,26 @@ void Scene_Easy::loadFromFile(const std::string &configPath) {
             config >> name >> rot >> pos.x >> pos.y >> cr;
             auto vel = sf::Vector2f(0.f, 0.f);
 
-            auto enemyPlane = m_entityManager.addEntity("obstacle");
-            enemyPlane->addComponent<CTransform>(pos, vel, rot);
-            enemyPlane->addComponent<CAnimation>(m_game->assets().getAnimation(name));
-            enemyPlane->addComponent<CCollision>(cr);
-        }
-        else if (token == "Bkg") {
+            auto obsctacle = m_entityManager.addEntity("obstacle");
+            obsctacle->addComponent<CTransform>(pos, vel, rot);
+            obsctacle->addComponent<CAnimation>(m_game->assets().getAnimation(name));
+            obsctacle->addComponent<CCollision>(cr);
+        } else if (token == "Enemy") {
+            std::string name;
+            sf::Vector2f pos;
+            int flip; 
+            float rot, cr;
+            config >> name >> rot >> flip >> pos.x >> pos.y >> cr;
+            auto vel = sf::Vector2f(0.f, 0.f);
+
+            auto enemy = m_entityManager.addEntity("enemy");
+            enemy->addComponent<CTransform>(pos, vel, rot);
+            enemy->addComponent<CAnimation>(m_game->assets().getAnimation(name));
+            auto& eSprit = enemy->getComponent<CAnimation>().animation.getSprite();
+            if (flip == 1)
+                eSprit.setScale(-1.0f, 1.0f);
+            enemy->addComponent<CCollision>(cr);
+        } else if (token == "Bkg") {
             std::string name;
             sf::Vector2f pos;
             config >> name >> pos.x >> pos.y;
@@ -258,7 +272,6 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
     if (m_player->hasComponent<CCollision>()) {
         sf::FloatRect dGBounds = m_player->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
         auto& dPos = m_player->getComponent<CTransform>().pos;
-        auto& dCr  = m_player->getComponent<CCollision>().radius;
 
         sf::FloatRect dRect(dPos.x - dGBounds.width/2.f, dPos.y - dGBounds.height/2.f, dGBounds.width, 85);
 
@@ -274,7 +287,6 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
             if (e->hasComponent<CTransform>() && e->hasComponent<CCollision>()) {
                 sf::FloatRect oGBounds = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
                 auto& oPos = e->getComponent<CTransform>().pos;
-                auto& oCr  = e->getComponent<CCollision>().radius;
                 oRect.left = oPos.x - oGBounds.width/2.f+5.f;
                 oRect.top  = oPos.y - oGBounds.height/2.f;
                 oRect.width  = oGBounds.width-10.f;
@@ -534,6 +546,7 @@ void Scene_Easy::update(sf::Time dt) {
     checkPlayerState();
     sMovement(dt);
     sCollisions();
+    //spawnEnemies();
    /*sGunUpdate(dt);
     sAnimation(dt);
     sGuideMissiles(dt);
