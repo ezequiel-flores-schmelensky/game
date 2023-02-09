@@ -256,44 +256,54 @@ void Scene_Easy::checkPickupCollision() {// check for plane collision
 void Scene_Easy::checkDogCollision() {// check for obstacle collision
 
     if (m_player->hasComponent<CCollision>()) {
+        sf::FloatRect dGBounds = m_player->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
         auto& dPos = m_player->getComponent<CTransform>().pos;
-        auto& dCr = m_player->getComponent<CCollision>().radius;
-        //m_obstacle = false;
+        auto& dCr  = m_player->getComponent<CCollision>().radius;
+
+        sf::FloatRect dRect(dPos.x - dGBounds.width/2.f, dPos.y - dGBounds.height/2.f, dGBounds.width, 85);
 
         m_stopers["T"] = false; 
         m_stopers["R"] = false;
         m_stopers["L"] = false;
         m_stopers["B"] = false;
 
-
+        
+        sf::FloatRect oRect;
+        
         for (auto e: m_entityManager.getEntities("obstacle")) {
             if (e->hasComponent<CTransform>() && e->hasComponent<CCollision>()) {
-                auto oPos = e->getComponent<CTransform>().pos;
-                auto oCr  = e->getComponent<CCollision>().radius;
+                sf::FloatRect oGBounds = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
+                auto& oPos = e->getComponent<CTransform>().pos;
+                auto& oCr  = e->getComponent<CCollision>().radius;
+                oRect.left = oPos.x - oGBounds.width/2.f+5.f;
+                oRect.top  = oPos.y - oGBounds.height/2.f;
+                oRect.width  = oGBounds.width-10.f;
+                oRect.height = oGBounds.height;
 
-                //if (dist(oPos, dPos) < (oCr + dCr)) {
-                //    m_obstacle = true;
-                //}
-                // planes have collided
-                // left collision
-                if (oPos.x - dPos.x < (oCr + dCr) && oPos.x - dPos.x >= 0 && absoluteValue(dPos.y, oPos.y) < (oCr + dCr)) {
-                    m_stopers["R"] = true;
-                }
-                if (dPos.x - oPos.x < (oCr + dCr) && dPos.x - oPos.x >= 0 && absoluteValue(dPos.y, oPos.y) < (oCr + dCr)) {
-                    m_stopers["L"] = true;
-                }
-                // Bottom
-                if (oPos.y - dPos.y < (oCr + dCr) && oPos.y - dPos.y >= 0 && absoluteValue(dPos.x, oPos.x) < (oCr + dCr)) {
-                    m_stopers["B"] = true;
-                }
-                if (dPos.y - oPos.y < (oCr + dCr) && dPos.y - oPos.y >= 0 && absoluteValue(dPos.x, oPos.x) < (oCr + dCr)) {
-                    m_stopers["T"] = true;
+                if (dRect.intersects(oRect)) {
+                    //Right;
+                    if (collide(oRect.left, dRect.left, dRect.width) &&
+                        absoluteValue(dPos.y, oPos.y) < (oRect.height /2.f + dRect.height / 2.f - 15.f)) {
+                        m_stopers["R"] = true;
+                    }
+                    if (collide(dRect.left, oRect.left, oRect.width) &&
+                        absoluteValue(dPos.y, oPos.y) < (oRect.height / 2.f + dRect.height / 2.f - 15.f)) {
+                        m_stopers["L"] = true;
+                    }
+                    // Bottom
+                    if (collide(oRect.top, dRect.top, dRect.height) &&
+                        absoluteValue(dPos.x, oPos.x) < (oRect.width / 2.f + dRect.width / 2.f - 15.f)) {
+                        m_stopers["B"] = true;
+                    }
+                    if (collide(dRect.top, oRect.top, oRect.height) &&
+                        absoluteValue(dPos.x, oPos.x) < (oRect.width / 2.f + dRect.width / 2.f - 15.f)) {
+                        m_stopers["T"] = true;
+                    }
                 }
             }
         }
     }
 }
-
 
 void Scene_Easy::checkBulletCollision() {
     // Player Bullets
@@ -385,25 +395,25 @@ void Scene_Easy::registerActions() {
 
     //TODO register action FIRE to fire the gun
 
-    registerAction(sf::Keyboard::P, "PAUSE");
+    registerAction(sf::Keyboard::P,      "PAUSE");
     registerAction(sf::Keyboard::Escape, "BACK");
-    registerAction(sf::Keyboard::Q, "QUIT");
+    registerAction(sf::Keyboard::Q,      "QUIT");
 
     registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");
     registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");
     registerAction(sf::Keyboard::G, "TOGGLE_GRID");
 
-    registerAction(sf::Keyboard::A, "LEFT");
-    registerAction(sf::Keyboard::Left, "LEFT");
-    registerAction(sf::Keyboard::D, "RIGHT");
+    registerAction(sf::Keyboard::A,     "LEFT");
+    registerAction(sf::Keyboard::Left,  "LEFT");
+    registerAction(sf::Keyboard::D,     "RIGHT");
     registerAction(sf::Keyboard::Right, "RIGHT");
-    registerAction(sf::Keyboard::W, "UP");
-    registerAction(sf::Keyboard::Up, "UP");
-    registerAction(sf::Keyboard::S, "DOWN");
-    registerAction(sf::Keyboard::Down, "DOWN");
+    registerAction(sf::Keyboard::W,     "UP");
+    registerAction(sf::Keyboard::Up,    "UP");
+    registerAction(sf::Keyboard::S,     "DOWN");
+    registerAction(sf::Keyboard::Down,  "DOWN");
 
     registerAction(sf::Keyboard::Space, "FIRE");
-    registerAction(sf::Keyboard::M, "LAUNCH");
+    registerAction(sf::Keyboard::M,     "LAUNCH");
 }
 
 
@@ -456,10 +466,10 @@ void Scene_Easy::adjustPlayer() {
     auto &pos = m_player->getComponent<CTransform>().pos;
     auto cr = m_player->getComponent<CCollision>().radius;
     
-    pos.x = std::max(pos.x, vb.left + cr);
-    pos.x = std::min(pos.x, vb.left + vb.width - cr);
+    pos.x = std::max(pos.x, vb.left + cr + 100);
+    pos.x = std::min(pos.x, vb.left + vb.width - cr - 110);
     pos.y = std::max(pos.y, vb.top + cr);
-    pos.y = std::min(pos.y, vb.top + vb.height - cr);
+    pos.y = std::min(pos.y, vb.top + vb.height - cr - 70);
 }
 
 void Scene_Easy::adjustScroll(sf::Time& dt) {

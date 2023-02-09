@@ -146,6 +146,19 @@ struct CShape : public Component {
     }
 };
 
+struct CRectShape : public Component {
+    sf::RectangleShape shape;
+
+    CRectShape() = default;
+
+    CRectShape(sf::Vector2f size, sf::Color color = sf::Color::Red, float angle = 0) {
+        shape.setSize(size);
+        shape.setFillColor(color);
+        shape.rotate(angle);
+        centerOrigin(shape);
+    }
+};
+
 
 struct CCollision : public Component {
     float radius{0.f};
