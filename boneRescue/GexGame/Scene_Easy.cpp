@@ -75,13 +75,25 @@ void Scene_Easy::loadFromFile(const std::string &configPath) {
             obsctacle->addComponent<CTransform>(pos, vel, rot);
             obsctacle->addComponent<CAnimation>(m_game->assets().getAnimation(name));
             obsctacle->addComponent<CCollision>(cr);
+
+            sf::FloatRect oGBounds = obsctacle->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
+            auto& oPos = obsctacle->getComponent<CTransform>().pos;
+
+            sf::Vector2f recSize, recPos;
+            recSize.x = oGBounds.width - 10.f;
+            recSize.y = oGBounds.height;
+            recPos.x = oPos.x - oGBounds.width / 2.f + 5.f;
+            recPos.y = oPos.y - oGBounds.height / 2.f;
+            
+            obsctacle->addComponent<CRectShape>(recSize, recPos);
+
         } else if (token == "Enemy") {
             std::string name;
-            sf::Vector2f pos;
+            sf::Vector2f pos, vel;
             int flip; 
             float rot, cr;
-            config >> name >> rot >> flip >> pos.x >> pos.y >> cr;
-            auto vel = sf::Vector2f(0.f, 0.f);
+            config >> name >> rot >> flip >> pos.x >> pos.y >> cr >> vel.x >> vel.y;
+            
 
             auto enemy = m_entityManager.addEntity("enemy");
             enemy->addComponent<CTransform>(pos, vel, rot);
@@ -90,6 +102,18 @@ void Scene_Easy::loadFromFile(const std::string &configPath) {
             if (flip == 1)
                 eSprit.setScale(-1.0f, 1.0f);
             enemy->addComponent<CCollision>(cr);
+
+            sf::FloatRect oGBounds = eSprit.getGlobalBounds();
+            auto& oPos = enemy->getComponent<CTransform>().pos;
+
+            sf::Vector2f recSize, recPos;
+            recSize.x = oGBounds.width - 10.f;
+            recSize.y = oGBounds.height;
+            recPos.x = oPos.x - oGBounds.width / 2.f + 5.f;
+            recPos.y = oPos.y - oGBounds.height / 2.f;
+
+            enemy->addComponent<CRectShape>(recSize, recPos, name);
+
         } else if (token == "Bkg") {
             std::string name;
             sf::Vector2f pos;
@@ -272,7 +296,6 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
     if (m_player->hasComponent<CCollision>()) {
         sf::FloatRect dGBounds = m_player->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
         auto& dPos = m_player->getComponent<CTransform>().pos;
-
         sf::FloatRect dRect(dPos.x - dGBounds.width/2.f, dPos.y - dGBounds.height/2.f, dGBounds.width, 85);
 
         m_stopers["T"] = false; 
@@ -285,12 +308,9 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
         
         for (auto e: m_entityManager.getEntities("obstacle")) {
             if (e->hasComponent<CTransform>() && e->hasComponent<CCollision>()) {
-                sf::FloatRect oGBounds = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
+                
+                sf::FloatRect oRect = e->getComponent<CRectShape>().shape.getGlobalBounds();
                 auto& oPos = e->getComponent<CTransform>().pos;
-                oRect.left = oPos.x - oGBounds.width/2.f+5.f;
-                oRect.top  = oPos.y - oGBounds.height/2.f;
-                oRect.width  = oGBounds.width-10.f;
-                oRect.height = oGBounds.height;
 
                 if (dRect.intersects(oRect)) {
                     //Right;
