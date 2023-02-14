@@ -112,7 +112,7 @@ void Scene_Easy::loadFromFile(const std::string &configPath) {
             recPos.x = oPos.x - oGBounds.width / 2.f + 5.f;
             recPos.y = oPos.y - oGBounds.height / 2.f;
 
-            enemy->addComponent<CRectShape>(recSize, recPos, name);
+            enemy->addComponent<CRectShape>(recSize, recPos, name, flip == 1);
 
         } else if (token == "Bkg") {
             std::string name;
@@ -153,7 +153,30 @@ void Scene_Easy::init(const std::string &configPath) {
 
 
 void Scene_Easy::keepEntitiesInBounds() {
+    auto vb = getViewBounds();
+    
 
+    for (auto e : m_entityManager.getEntities("enemy")) {
+        if (e->hasComponent<CCollision>()) {
+            auto& tfm = e->getComponent<CTransform>();
+            auto& rComp = e->getComponent<CRectShape>();
+            auto& eSprit = e->getComponent<CAnimation>().animation.getSprite();
+            
+            auto& rSize = rComp.shape.getSize();
+
+            if (tfm.pos.x < (vb.left + rSize.x / 2.f + 100) || (tfm.pos.x) >(vb.left + vb.width - rSize.x / 2.f - 100)) {
+                tfm.vel.x *= -1;
+                if (!rComp.flipped)
+                    eSprit.setScale(-1.0f, 1.0f);
+                else
+                    e->addComponent<CAnimation>(m_game->assets().getAnimation(rComp.name));
+                rComp.flipped = !rComp.flipped;
+            }
+            //if (tfm.pos.y - rSize.y / 2.f < vb.top || (tfm.pos.y + r) >(vb.top + vb.height)) {
+            //    tfm.vel.y *= -1;
+            //}
+        }
+    }
 }
 
 
@@ -563,6 +586,7 @@ void Scene_Easy::update(sf::Time dt) {
 
     adjustScroll(dt);
     adjustPlayer();
+    keepEntitiesInBounds();
     checkPlayerState();
     sMovement(dt);
     sCollisions();
