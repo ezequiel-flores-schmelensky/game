@@ -149,15 +149,17 @@ struct CShape : public Component {
 struct CRectShape : public Component {
     sf::RectangleShape shape;
     std::string name;
+    bool flipped;
 
     CRectShape() = default;
 
-    CRectShape(sf::Vector2f size, sf::Vector2f pos, std::string name = "", float angle = 0.f, sf::Color color = sf::Color::Red) {
+    CRectShape(sf::Vector2f size, sf::Vector2f pos, std::string _name = "", bool _flipped = false, float angle = 0.f, sf::Color color = sf::Color::Red) {
         shape.setSize(size);
         shape.setPosition(pos);
         shape.setFillColor(color);
         shape.rotate(angle);
-        name = name;
+        name = _name;
+        flipped = _flipped;
         //centerOrigin(shape);
     }
 };
