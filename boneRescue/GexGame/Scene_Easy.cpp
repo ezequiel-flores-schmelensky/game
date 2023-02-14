@@ -103,14 +103,14 @@ void Scene_Easy::loadFromFile(const std::string &configPath) {
                 eSprit.setScale(-1.0f, 1.0f);
             enemy->addComponent<CCollision>(cr);
 
-            sf::FloatRect oGBounds = eSprit.getGlobalBounds();
-            auto& oPos = enemy->getComponent<CTransform>().pos;
+            sf::FloatRect eGBounds = eSprit.getGlobalBounds();
+            auto& ePos = enemy->getComponent<CTransform>().pos;
 
             sf::Vector2f recSize, recPos;
-            recSize.x = oGBounds.width - 10.f;
-            recSize.y = oGBounds.height;
-            recPos.x = oPos.x - oGBounds.width / 2.f + 5.f;
-            recPos.y = oPos.y - oGBounds.height / 2.f;
+            recSize.x = eGBounds.width - 10.f;
+            recSize.y = eGBounds.height;
+            recPos.x = ePos.x - eGBounds.width / 2.f + 5.f;
+            recPos.y = ePos.y - eGBounds.height / 2.f;
 
             enemy->addComponent<CRectShape>(recSize, recPos, name, flip == 1);
 
@@ -163,8 +163,37 @@ void Scene_Easy::keepEntitiesInBounds() {
             auto& eSprit = e->getComponent<CAnimation>().animation.getSprite();
             
             auto& rSize = rComp.shape.getSize();
+            bool forniture = false;
+            if (rComp.name == "GangsterCat") {//name = "GangsterCat"
+                auto eRect = eSprit.getGlobalBounds();
 
-            if (tfm.pos.x < (vb.left + rSize.x / 2.f + 100) || (tfm.pos.x) >(vb.left + vb.width - rSize.x / 2.f - 100)) {
+                for (auto o : m_entityManager.getEntities("obstacle")) {
+                    if (o->hasComponent<CTransform>() && o->hasComponent<CCollision>()) {
+
+                        sf::FloatRect oRect = o->getComponent<CRectShape>().shape.getGlobalBounds();
+                        auto& oPos = o->getComponent<CTransform>().pos;
+
+                        if (eRect.intersects(oRect)) {
+                            //Right;
+                            if (collide(oRect.left, eRect.left, eRect.width) &&
+                                absoluteValue(tfm.pos.y, oPos.y) < (oRect.height / 2.f + eRect.height / 2.f - 15.f)) {
+                                forniture = true;
+                                break;
+                            }
+                            //Left
+                            if (collide(eRect.left, oRect.left, oRect.width) &&
+                                absoluteValue(tfm.pos.y, oPos.y) < (oRect.height / 2.f + eRect.height / 2.f - 15.f)) {
+                                forniture = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (tfm.pos.x < (vb.left + rSize.x / 2.f + 100) || 
+                (tfm.pos.x) >(vb.left + vb.width - rSize.x / 2.f - 100) || 
+                forniture) {
                 tfm.vel.x *= -1;
                 if (!rComp.flipped)
                     eSprit.setScale(-1.0f, 1.0f);
@@ -233,6 +262,7 @@ void Scene_Easy::playerMovement() {
 
 void Scene_Easy::sCollisions() {
     checkDogCollision();
+    //checkPickupCollision();
     //checkMissileCollision();
     //checkBulletCollision();
     //checkPickupCollision();
