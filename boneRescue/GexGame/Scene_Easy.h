@@ -87,9 +87,9 @@ private:
     void                            fireBullet();
     void                            fireMissile();
     void                            droppingAPickup(sf::Vector2f pos);
+    void                            checkDogCollision();
     void                            checkMissileCollision();
     void                            checkBulletCollision();
-    void                            checkDogCollision();
     void                            checkPickupCollision();
     void                            checkIfDead(NttPtr e);
 
