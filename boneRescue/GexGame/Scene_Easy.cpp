@@ -499,8 +499,9 @@ void Scene_Easy::registerActions() {
     registerAction(sf::Keyboard::S,     "DOWN");
     registerAction(sf::Keyboard::Down,  "DOWN");
 
-    registerAction(sf::Keyboard::Space, "BARK");
+    //registerAction(sf::Keyboard::Space, "BARK");
     registerAction(sf::Keyboard::M,     "LAUNCH");
+    registerAction(sf::Mouse::Right,     "BARK");
 }
 
 
@@ -661,17 +662,26 @@ void Scene_Easy::sDoAction(const Action &action) {
         else if (action.name() == "DOWN") { m_player->getComponent<CInput>().down = true; }
 
             // firing weapons
-        else if (action.name() == "BARK") { fireBullet(); }
+        //else if (action.name() == "BARK") { fireBullet(); }
         else if (action.name() == "LAUNCH") { fireMissile(); }
 
     }
 
         // on Key Release
     else if (action.type() == "END") {
-        if (action.name() == "LEFT") { m_player->getComponent<CInput>().left = false; }
+        if (action.name() == "LEFT") { 
+            m_player->getComponent<CInput>().left = false; 
+        }
         else if (action.name() == "RIGHT") { m_player->getComponent<CInput>().right = false; }
         else if (action.name() == "UP") { m_player->getComponent<CInput>().up = false; }
         else if (action.name() == "DOWN") { m_player->getComponent<CInput>().down = false; }
+    }
+
+    else if (action.type() == "CLICK") {
+        if (action.name() == "BARK") { 
+            m_clickPosition = action.pos();
+            fireBullet(); 
+        }
     }
 
 }
@@ -789,18 +799,16 @@ void Scene_Easy::fireBullet() {
 
 void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy) {
     float speed = (isEnemy) ? m_barkSpeed : -m_barkSpeed;
+    auto vb = getViewBounds();
     
-    auto mPos = sf::Vector2f(sf::Mouse::getPosition());
-    //auto pTransform = m_player->getComponent<CTransform>();
-    //mPos.x = mPos.x >= pos.x ? mPos.x - pos.x : -(pos.x - mPos.x);
-    //mPos.y = mPos.y >= pos.y ? mPos.y - pos.y : -(pos.y - mPos.y);
+    m_clickPosition.y = vb.top + m_clickPosition.y;
 
-    sf::Vector2f bv; //bullet velocity
-    bv = m_barkSpeed * normalize(mPos);
-
+    auto targetDir = normalize(m_clickPosition - pos);
+    sf::Vector2f bv;
+    bv = m_barkSpeed * normalize(targetDir + bv);
 
     auto bullet = m_entityManager.addEntity(isEnemy ? "enemyBullet" : "roarBlue");
-    bullet->addComponent<CTransform>(pos, bv, bearing(mPos));
+    bullet->addComponent<CTransform>(pos, bv, bearing(bv));
     bullet->addComponent<CAnimation>(m_game->assets().getAnimation("RoarBlue"));
     bullet->addComponent<CCollision>(3);
 
@@ -834,7 +842,7 @@ void Scene_Easy::sGunUpdate(sf::Time dt) {
                 auto pos = e->getComponent<CTransform>().pos;
                 switch (gun.spreadLevel) {
                     case 1:
-                        createBullet(pos + sf::Vector2f(0.f, isEnemy ? 35.f : -35.f), isEnemy);
+                        createBullet(pos, isEnemy);
                         break;
 
                     case 2:
