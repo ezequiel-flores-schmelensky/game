@@ -266,7 +266,7 @@ void Scene_Easy::playerMovement() {
 void Scene_Easy::sCollisions() {
     checkDogCollision();
     checkBarkCollision();
-    //checkPickupCollision();
+    checkPickupCollision();
     //checkMissileCollision();
     //checkPickupCollision();
 }
@@ -299,21 +299,21 @@ void Scene_Easy::checkPickupCollision() {// check for plane collision
         auto pPos = m_player->getComponent<CTransform>().pos;
         auto pCr = m_player->getComponent<CCollision>().radius;
         
-        for (auto e : m_entityManager.getEntities("pickup")) {
-            if (e->hasComponent<CTransform>() && e->hasComponent<CCollision>()) {
-                auto ePos = e->getComponent<CTransform>().pos;
-                auto eCr = e->getComponent<CCollision>().radius;
+        for (auto p : m_entityManager.getEntities("pickup")) {
+            if (p->hasComponent<CTransform>() && p->hasComponent<CCollision>()) {
+                auto ePos = p->getComponent<CTransform>().pos;
+                auto eCr = p->getComponent<CCollision>().radius;
 
                 // planes have collided
                 if (dist(ePos, pPos) < (eCr + pCr)) {
                     auto& pHP  = m_player->getComponent<CHealth>().hp;
                     auto& pGun = m_player->getComponent<CGun>(); 
-                    auto& pM   = m_player->getComponent<CMissiles>().missileCount;
+                    //auto& pM   = m_player->getComponent<CMissiles>().missileCount;
 
-                    auto& eHP = e->getComponent<CHealth>().hp; 
-                    auto   eP = e->getComponent<CPickup>().pickup;
-                    e->removeComponent<CAnimation>();
-                    e->removeComponent<CCollision>();
+                    auto& eHP = p->getComponent<CHealth>().hp;
+                    auto   eP = p->getComponent<CPickup>().pickup;
+                    p->removeComponent<CAnimation>();
+                    p->removeComponent<CCollision>();
                    
                     //0 - "healthRefill";
                     //1 - "missileRefill";
@@ -325,22 +325,18 @@ void Scene_Easy::checkPickupCollision() {// check for plane collision
                             pHP += 25;
                             break;
                         case 1:
-                            pM += 2;
+                            pHP += 25;
                             break;
                         case 2:
                             if (pGun.fireRate < 9)
                                 pGun.fireRate += 1;
-                            break;
-                        case 3:
-                            if (pGun.spreadLevel < 3)
-                                pGun.spreadLevel += 1;
                             break;
                         default:
                             break;
                     }
                    
                     //SoundPlayer::getInstance().play("CollectPickup", e->getComponent<CTransform>().pos);
-                    e->destroy();
+                    p->destroy();
                 }
             }
         }
