@@ -411,10 +411,11 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
                     eHP -= eHP;
 
                     checkIfDead(e);
-                    //int hPickup = hasPickup(rng);
-                    //if (e->getComponent<CState>().state == "dead" && hPickup == 1) {
-                    if (e->getComponent<CState>().state == "dead") {
-                        //droppingAPickup(e->getComponent<CTransform>().pos);
+                    int hPickup = hasPickup(rng);
+                    
+                    if (e->getComponent<CState>().state == "dead" && hPickup == 1) {
+                        auto& rComp = e->getComponent<CRectShape>();
+                        droppingAPickup(e->getComponent<CTransform>().pos, rComp.name);
                         e->destroy();
                     }
 
@@ -450,10 +451,11 @@ void Scene_Easy::checkBarkCollision() {
                         if (e->getComponent<CState>().state == "dead") {
                             e->destroy();
                         }
-                        //int hPickup = hasPickup(rng);
-                        //if (e->getComponent<CState>().state == "dead" && hPickup == 1) {
-                        //    droppingAPickup(e->getComponent<CTransform>().pos);
-                        //}
+                        int hPickup = hasPickup(rng);
+                        if (e->getComponent<CState>().state == "dead" && hPickup == 1) {
+                            auto& rComp = e->getComponent<CRectShape>();
+                            droppingAPickup(e->getComponent<CTransform>().pos, rComp.name);
+                        }
                     }
                 }
             }
@@ -501,10 +503,10 @@ void Scene_Easy::checkMissileCollision() {// missiles
                         m->destroy();
                         checkIfDead(e);
 
-                        int hPickup = hasPickup(rng);
-                        if (e->getComponent<CState>().state == "dead" && hPickup == 1) {
-                            droppingAPickup(e->getComponent<CTransform>().pos);
-                        }
+                        //int hPickup = hasPickup(rng);
+                        //if (e->getComponent<CState>().state == "dead" && hPickup == 1) {
+                        //    droppingAPickup(e->getComponent<CTransform>().pos);
+                        //}
                         
                     }
                 }
@@ -931,26 +933,29 @@ void Scene_Easy::fireMissile() {
     }
 }
 
-void Scene_Easy::droppingAPickup(sf::Vector2f pos) {
+void Scene_Easy::droppingAPickup(sf::Vector2f pos, std::string enemyType) {
 
-    std::uniform_int_distribution flipPickupType(0, 3);
-    int pickupType = flipPickupType(rng);
+    
+    int pickupType = 0;
     std::string animation{ "" };
-    switch (pickupType)
-    {
-        case 0:
-            animation = "HealthRefill";
-            break;
-        case 1:
-            animation = "MissileRefill";
-            break;
-        case 2:
-            animation = "FireRate";
-            break;
-        case 3:
-            animation = "FireSpread";
-            break;
+
+    if (enemyType == "GangsterCat" || enemyType == "Dove") {
+        std::uniform_int_distribution flipPickupType(0, 1);
+        pickupType = flipPickupType(rng);
+        switch (pickupType)
+        {
+            case 0:
+                animation = "PowerUp1";
+                break;
+            case 1:
+                animation = "PowerUp2";
+                break;
+        }
+    } else {
+        pickupType = 2;
+        animation = "PowerUp3";
     }
+    
 
     auto pickup = m_entityManager.addEntity("pickup");
 

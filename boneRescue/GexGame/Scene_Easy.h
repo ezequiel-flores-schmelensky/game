@@ -87,7 +87,7 @@ private:
     sf::FloatRect                   getViewBounds();
     void                            bark();
     void                            fireMissile();
-    void                            droppingAPickup(sf::Vector2f pos);
+    void                            droppingAPickup(sf::Vector2f pos, std::string enemyType);
     void                            checkDogCollision();
     void                            checkMissileCollision();
     void                            checkBarkCollision();
