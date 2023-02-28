@@ -3,7 +3,7 @@ World 1024 7000
 ScrollSpeed 150
 PlayerSpeed 250
 ##EnemySpeed  100
-##BulletSpeed 900
+BarkSpeed 700
 ##MissileSpeed 250
 ##FireInterval 2
 

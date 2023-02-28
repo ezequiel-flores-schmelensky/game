@@ -47,12 +47,13 @@ private:
     float                           m_enemySpeed{100.f};
     std::map<String, EnemyConfig>   m_enemyConfig;
 
-    float                           m_bulletSpeed;
+    float                           m_barkSpeed;
     float                           m_missileSpeed;
-    sf::Time                        m_fireInterval{sf::seconds(5)};
+    sf::Time                        m_fireInterval{sf::seconds(2)};
 
     sf::Vector2f                    m_spawnPosition;
     sf::Vector2f                    m_spawnPlayerPosition;
+    sf::Vector2f                    m_clickPosition;
     bool						    m_drawTextures{true};
     bool						    m_drawAABB{false};
     bool				            m_drawGrid{false};

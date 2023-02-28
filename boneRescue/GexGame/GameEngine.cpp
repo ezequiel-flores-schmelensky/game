@@ -148,6 +148,12 @@ void GameEngine::sUserInput()
                 currentScene()->doAction(Action(currentScene()->getActionMap().at(event.key.code), actionType));
             }
         }
+
+        if (event.type == sf::Event::MouseButtonPressed) {
+            if (currentScene()->getActionMap().contains(event.key.code)) {
+                currentScene()->doAction(Action(currentScene()->getActionMap().at(event.key.code), "CLICK", sf::Vector2f(event.mouseButton.x, event.mouseButton.y)));
+            }
+        }
     }
 }
 
