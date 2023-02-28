@@ -390,6 +390,42 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
                 }
             }
         }
+
+        auto pPos = m_player->getComponent<CTransform>().pos;
+        auto pCr = m_player->getComponent<CCollision>().radius;
+
+        for (auto e : m_entityManager.getEntities("enemy")) {
+            if (e->hasComponent<CTransform>() && e->hasComponent<CCollision>()) {
+                auto ePos = e->getComponent<CTransform>().pos;
+                auto eCr = e->getComponent<CCollision>().radius;
+
+                // planes have collided
+                if (dist(ePos, pPos) < (eCr + pCr)) {
+                    auto& pHP = m_player->getComponent<CHealth>().hp;
+                    auto& eHP = e->getComponent<CHealth>().hp;
+
+                    // however many HP the plane has left,
+                    // that's how much damage it inflicts on other plane
+                    int tmpHP = pHP;
+                    pHP -= pHP;
+                    eHP -= eHP;
+
+                    checkIfDead(e);
+                    //int hPickup = hasPickup(rng);
+                    //if (e->getComponent<CState>().state == "dead" && hPickup == 1) {
+                    if (e->getComponent<CState>().state == "dead") {
+                        //droppingAPickup(e->getComponent<CTransform>().pos);
+                        e->destroy();
+                    }
+
+                    checkIfDead(m_player);
+                    if (m_player->getComponent<CState>().state == "dead") {
+                        setPaused(true);
+                    }
+
+                }
+            }
+        }
     }
 }
 
