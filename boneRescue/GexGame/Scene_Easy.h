@@ -47,7 +47,7 @@ private:
     float                           m_enemySpeed{100.f};
     std::map<String, EnemyConfig>   m_enemyConfig;
 
-    float                           m_bulletSpeed;
+    float                           m_barkSpeed;
     float                           m_missileSpeed;
     sf::Time                        m_fireInterval{sf::seconds(5)};
 
