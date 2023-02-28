@@ -104,6 +104,7 @@ void Scene_Easy::loadFromFile(const std::string &configPath) {
             if (flip == 1)
                 eSprit.setScale(-1.0f, 1.0f);
             enemy->addComponent<CCollision>(cr);
+            enemy->addComponent<CHealth>(20);
 
             sf::FloatRect eGBounds = eSprit.getGlobalBounds();
             auto& ePos = enemy->getComponent<CTransform>().pos;
@@ -264,9 +265,9 @@ void Scene_Easy::playerMovement() {
 
 void Scene_Easy::sCollisions() {
     checkDogCollision();
+    checkBarkCollision();
     //checkPickupCollision();
     //checkMissileCollision();
-    //checkBulletCollision();
     //checkPickupCollision();
 }
 
@@ -278,7 +279,7 @@ void Scene_Easy::checkIfDead(NttPtr e) {
     // check for planes that need to be destroyed
     if (e->hasComponent<CHealth>()) {
         if (e->getComponent<CHealth>().hp <= 0) {
-            e->addComponent<CAnimation>(m_game->assets().getAnimation("explosion"));
+            //e->addComponent<CAnimation>(m_game->assets().getAnimation("explosion"));
             e->getComponent<CTransform>().vel = sf::Vector2f(0.f, 0.f);
             e->addComponent<CState>().state = "dead";
             e->removeComponent<CCollision>();
@@ -392,9 +393,9 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
     }
 }
 
-void Scene_Easy::checkBulletCollision() {
+void Scene_Easy::checkBarkCollision() {
     // Player Bullets
-    for (auto bullet: m_entityManager.getEntities("playerBullet")) {
+    for (auto bullet: m_entityManager.getEntities("roarBlue")) {
         if (bullet->hasComponent<CTransform>() && bullet->hasComponent<CCollision>()) {
             auto bPos = bullet->getComponent<CTransform>().pos;
             auto bCr = bullet->getComponent<CCollision>().radius;
@@ -409,10 +410,14 @@ void Scene_Easy::checkBulletCollision() {
                         e->getComponent<CHealth>().hp -= 20;
                         bullet->destroy();
                         checkIfDead(e);
-                        int hPickup = hasPickup(rng);
-                        if (e->getComponent<CState>().state == "dead" && hPickup == 1) {
-                            droppingAPickup(e->getComponent<CTransform>().pos);
+                        
+                        if (e->getComponent<CState>().state == "dead") {
+                            e->destroy();
                         }
+                        //int hPickup = hasPickup(rng);
+                        //if (e->getComponent<CState>().state == "dead" && hPickup == 1) {
+                        //    droppingAPickup(e->getComponent<CTransform>().pos);
+                        //}
                     }
                 }
             }
@@ -421,7 +426,7 @@ void Scene_Easy::checkBulletCollision() {
 
 
     // Enemy Bullets
-    if (m_player->hasComponent<CCollision>()) {
+    /*if (m_player->hasComponent<CCollision>()) {
         auto pPos = m_player->getComponent<CTransform>().pos;
         auto pCr = m_player->getComponent<CCollision>().radius;
 
@@ -440,7 +445,7 @@ void Scene_Easy::checkBulletCollision() {
                 }
             }
         }
-    }
+    }*/
 }
 
 
@@ -662,7 +667,7 @@ void Scene_Easy::sDoAction(const Action &action) {
         else if (action.name() == "DOWN") { m_player->getComponent<CInput>().down = true; }
 
             // firing weapons
-        //else if (action.name() == "BARK") { fireBullet(); }
+        //else if (action.name() == "BARK") { bark(); }
         else if (action.name() == "LAUNCH") { fireMissile(); }
 
     }
@@ -680,7 +685,7 @@ void Scene_Easy::sDoAction(const Action &action) {
     else if (action.type() == "CLICK") {
         if (action.name() == "BARK") { 
             m_clickPosition = action.pos();
-            fireBullet(); 
+            bark(); 
         }
     }
 
@@ -792,7 +797,7 @@ void Scene_Easy::sAnimation(sf::Time dt) {
 }
 
 
-void Scene_Easy::fireBullet() {
+void Scene_Easy::bark() {
     m_player->getComponent<CGun>().isFiring = true;
 }
 

@@ -85,12 +85,12 @@ private:
     void                            adjustScroll(sf::Time& dt);
     void                            adjustPlayer();
     sf::FloatRect                   getViewBounds();
-    void                            fireBullet();
+    void                            bark();
     void                            fireMissile();
     void                            droppingAPickup(sf::Vector2f pos);
     void                            checkDogCollision();
     void                            checkMissileCollision();
-    void                            checkBulletCollision();
+    void                            checkBarkCollision();
     void                            checkPickupCollision();
     void                            checkIfDead(NttPtr e);
 
