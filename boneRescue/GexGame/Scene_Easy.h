@@ -49,7 +49,8 @@ private:
 
     float                           m_barkSpeed;
     float                           m_missileSpeed;
-    sf::Time                        m_fireInterval{sf::seconds(2)};
+    sf::Time                        m_fireInterval{ sf::seconds(2) };
+    sf::Time                        m_fireEnemyInterval{ sf::seconds(10) };
 
     sf::Vector2f                    m_spawnPosition;
     sf::Vector2f                    m_spawnPlayerPosition;
@@ -75,7 +76,7 @@ private:
     sf::Vector2f                    findClosestEnemy(sf::Vector2f mPos);
     void                            spawnEnemy( std::string type, sf::Vector2f pos);
     void                            spawnEnemies(std::string type, float offset, size_t numPlanes);
-    void                            createBullet(sf::Vector2f pos, bool isEnemy);
+    void                            createBullet(sf::Vector2f pos, bool isEnemy, std::string animationType, float flipped);
     void                            registerActions();
     void                            init(const std::string& configPath);
     void                            loadFromFile(const std::string &configPath);
