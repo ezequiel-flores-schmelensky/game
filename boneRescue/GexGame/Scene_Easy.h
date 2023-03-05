@@ -40,7 +40,7 @@ private:
 
     sf::View                        m_worldView;
     sf::FloatRect                   m_worldBounds;
-    std::map<std::string, bool>     m_stopers{ {"T", false}, {"R", false}, {"L", false}, {"B", false} }; //top-right-left-bottom
+    std::map<std::string, bool>        m_stopers{ {"T", false}, {"R", false}, {"L", false}, {"B", false} }; //top-right-left-bottom
 
     float                           m_scrollSpeed;
     float                           m_playerSpeed;
@@ -49,7 +49,10 @@ private:
 
     float                           m_barkSpeed;
     float                           m_missileSpeed;
-    sf::Time                        m_fireInterval{sf::seconds(2)};
+    sf::Time                        m_fireInterval{ sf::seconds(2) };
+    sf::Time                        m_fireDoveInterval{ sf::seconds(7) };
+    sf::Time                        m_fireCatInterval{ sf::seconds(5) };
+    sf::Time                        m_fireSpiderInterval{ sf::seconds(10) };
 
     sf::Vector2f                    m_spawnPosition;
     sf::Vector2f                    m_spawnPlayerPosition;
@@ -75,7 +78,7 @@ private:
     sf::Vector2f                    findClosestEnemy(sf::Vector2f mPos);
     void                            spawnEnemy( std::string type, sf::Vector2f pos);
     void                            spawnEnemies(std::string type, float offset, size_t numPlanes);
-    void                            createBullet(sf::Vector2f pos, bool isEnemy);
+    void                            createBullet(sf::Vector2f pos, bool isEnemy, std::string animationType, float flipped);
     void                            registerActions();
     void                            init(const std::string& configPath);
     void                            loadFromFile(const std::string &configPath);
@@ -90,7 +93,7 @@ private:
     void                            droppingAPickup(sf::Vector2f pos, std::string enemyType);
     void                            checkDogCollision();
     void                            checkMissileCollision();
-    void                            checkBarkCollision();
+    void                            checkGunCollision();
     void                            checkPickupCollision();
     void                            checkIfDead(NttPtr e);
 

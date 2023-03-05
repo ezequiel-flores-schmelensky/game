@@ -101,6 +101,7 @@ void Scene_Easy::loadFromFile(const std::string &configPath) {
             enemy->addComponent<CTransform>(pos, vel, rot);
             enemy->addComponent<CAnimation>(m_game->assets().getAnimation(name));
             auto& eSprit = enemy->getComponent<CAnimation>().animation.getSprite();
+            auto& gun = enemy->addComponent<CGun>();
             if (flip == 1)
                 eSprit.setScale(-1.0f, 1.0f);
             enemy->addComponent<CCollision>(cr);
@@ -265,10 +266,9 @@ void Scene_Easy::playerMovement() {
 
 void Scene_Easy::sCollisions() {
     checkDogCollision();
-    checkBarkCollision();
+    checkGunCollision();
     checkPickupCollision();
     //checkMissileCollision();
-    //checkPickupCollision();
 }
 
 
@@ -426,7 +426,7 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
     }
 }
 
-void Scene_Easy::checkBarkCollision() {
+void Scene_Easy::checkGunCollision() {
     // Player Bullets
     for (auto bullet: m_entityManager.getEntities("roarBlue")) {
         if (bullet->hasComponent<CTransform>() && bullet->hasComponent<CCollision>()) {
@@ -458,11 +458,10 @@ void Scene_Easy::checkBarkCollision() {
         }
     }
 
-
     // Enemy Bullets
-    /*if (m_player->hasComponent<CCollision>()) {
-        auto pPos = m_player->getComponent<CTransform>().pos;
-        auto pCr = m_player->getComponent<CCollision>().radius;
+    if (m_player->hasComponent<CCollision>()) {
+        auto& pPos = m_player->getComponent<CTransform>().pos;
+        auto& pCr = m_player->getComponent<CCollision>().radius;
 
         for (auto bullet: m_entityManager.getEntities("enemyBullet")) {
             if (bullet->hasComponent<CTransform>() && bullet->hasComponent<CCollision>()) {
@@ -479,7 +478,7 @@ void Scene_Easy::checkBarkCollision() {
                 }
             }
         }
-    }*/
+    }
 }
 
 
@@ -559,6 +558,15 @@ void Scene_Easy::spawnPlayer() {
     m_player->addComponent<CHealth>().hp = 100;
     auto &gun = m_player->addComponent<CGun>();
 
+
+    sf::FloatRect oGBounds = m_player->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
+    auto& oPos = m_player->getComponent<CTransform>().pos;
+
+    sf::Vector2f recSize, recPos;
+    recSize.x = oGBounds.width - 10.f;
+    recSize.y = oGBounds.height;
+
+    m_player->addComponent<CRectShape>(recSize, oPos, "Dog");
 }
 
 
@@ -604,7 +612,7 @@ void Scene_Easy::adjustScroll(sf::Time& dt) {
     auto& pos = m_player->getComponent<CTransform>().pos;
     auto cr = m_player->getComponent<CCollision>().radius;
 
-    if (pos.y - 100 < vb.top)
+    if (pos.y - 300 < vb.top)
         m_worldView.move(0.f, m_scrollSpeed * dt.asSeconds() * -1);
     if (pos.y + 100 > vb.top + vb.height - cr && pos.y < m_worldBounds.height - 100 - cr)
         m_worldView.move(0.f, m_scrollSpeed * dt.asSeconds());
@@ -836,20 +844,47 @@ void Scene_Easy::bark() {
 }
 
 
-void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy) {
+void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy, std::string animationType, float flipped) {
     float speed = (isEnemy) ? m_barkSpeed : -m_barkSpeed;
     auto vb = getViewBounds();
     
-    m_clickPosition.y = vb.top + m_clickPosition.y;
-
-    auto targetDir = normalize(m_clickPosition - pos);
     sf::Vector2f bv;
-    bv = m_barkSpeed * normalize(targetDir + bv);
-
+    float collision = 0.f;
+    float angle = 0.f;
+    std::string bAnimation = "RoarBlue";
     auto bullet = m_entityManager.addEntity(isEnemy ? "enemyBullet" : "roarBlue");
-    bullet->addComponent<CTransform>(pos, bv, bearing(bv));
-    bullet->addComponent<CAnimation>(m_game->assets().getAnimation("RoarBlue"));
-    bullet->addComponent<CCollision>(3);
+    
+
+    if (animationType == "Dog") {
+        m_clickPosition.y = vb.top + m_clickPosition.y;
+        auto targetDir = normalize(m_clickPosition - pos);
+        bv = m_barkSpeed * normalize(targetDir + bv);
+        angle = bearing(bv);
+        bAnimation = "RoarBlue";
+        collision = 20;
+    } else if (animationType == "GangsterCat") {
+        bAnimation = "Bullet";
+        bv.x = flipped? -300.f:300.f;
+        bv.y = 0.f;
+        angle = flipped?180:0;
+        collision = 3;
+    } else if (animationType == "Dove") {
+        bAnimation = "DovePo";
+        bv.x = 0.f;
+        bv.y = 300.f;
+        angle = 0;
+        collision = 5;
+    } else if (animationType == "Spider") {
+        bAnimation = "Web";
+        bv.x = flipped?150.f: -150.f;
+        bv.y = 150.f;
+        angle = flipped?280:20;
+        collision = 20;
+    }
+    
+    bullet->addComponent<CTransform>(pos, bv, angle);
+    bullet->addComponent<CAnimation>(m_game->assets().getAnimation(bAnimation));
+    bullet->addComponent<CCollision>(collision);
 
     //std::string sfx = (isEnemy) ? "EnemyGunfire" : "AlliedGunfire";
     //SoundPlayer::getInstance().play("AlliedGunfire", pos);
@@ -874,32 +909,28 @@ void Scene_Easy::sGunUpdate(sf::Time dt) {
             //
             // when firing
             //
-            if (gun.isFiring && gun.countdown < sf::Time::Zero) {
+            auto& rComp = e->getComponent<CRectShape>();
+            auto& pos = e ->getComponent<CTransform>().pos;
+            auto vb = getViewBounds();
+
+            if (gun.isFiring && gun.countdown < sf::Time::Zero && vb.top < pos.y) {
                 gun.isFiring = false;
-                gun.countdown = m_fireInterval / (1.f + gun.fireRate);
+                 
+                
+                if (isEnemy) {
+                    if (rComp.name == "GangsterCat")
+                        gun.countdown = m_fireCatInterval / (1.f + gun.fireRate);
+                    else if (rComp.name == "Dove") 
+                        gun.countdown = m_fireDoveInterval / (1.f + gun.fireRate);
+                    else if (rComp.name == "Spider")
+                        gun.countdown = m_fireSpiderInterval / (1.f + gun.fireRate);                
+                } else
+                    gun.countdown = m_fireInterval / (1.f + gun.fireRate);
 
                 auto pos = e->getComponent<CTransform>().pos;
-                switch (gun.spreadLevel) {
-                    case 1:
-                        createBullet(pos, isEnemy);
-                        break;
-
-                    case 2:
-                        createBullet(pos + sf::Vector2f(-20.f, 0.f), isEnemy);
-                        createBullet(pos + sf::Vector2f(20.f, 0.f), isEnemy);
-                        break;
-
-                    case 3:
-                        createBullet(pos + sf::Vector2f(0.f, -35.f), isEnemy);
-                        createBullet(pos + sf::Vector2f(-20.f, 0.f), isEnemy);
-                        createBullet(pos + sf::Vector2f(20.f, 0.f), isEnemy);
-                        break;
-
-                    default:
-                        std::cerr << "Bad spread level firing gun\n";
-                        break;
-                }
-
+                
+                createBullet(pos, isEnemy, rComp.name, rComp.flipped);
+                
             }
         }
     }
