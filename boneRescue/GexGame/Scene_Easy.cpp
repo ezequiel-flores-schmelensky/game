@@ -231,7 +231,7 @@ void Scene_Easy::sMovement(sf::Time dt) {
         }
     }
 
-    if ((m_player->getComponent<CTransform>().pos.y - m_player->getComponent<CCollision>().radius) <= 0) {
+    if ((m_player->getComponent<CTransform>().pos.y - m_player->getComponent<CCollision>().radius) <= 100) {
         m_player->addComponent<CState>().state = "win";
         setPaused(true);
     }
@@ -612,10 +612,17 @@ void Scene_Easy::adjustScroll(sf::Time& dt) {
     auto& pos = m_player->getComponent<CTransform>().pos;
     auto cr = m_player->getComponent<CCollision>().radius;
 
-    if (pos.y - 300 < vb.top)
+    if (pos.y - 300 < vb.top && m_enableScroll)
         m_worldView.move(0.f, m_scrollSpeed * dt.asSeconds() * -1);
-    if (pos.y + 100 > vb.top + vb.height - cr && pos.y < m_worldBounds.height - 100 - cr)
+    if (pos.y + 100 > vb.top + vb.height - cr && pos.y < m_worldBounds.height - 100 - cr && m_enableScroll)
         m_worldView.move(0.f, m_scrollSpeed * dt.asSeconds());
+    if (pos.y < 700 && !m_finalBoss && m_enableScroll) {
+        m_finalBoss = true;
+    }
+    if (m_finalBoss && m_enableScroll)
+        m_worldView.move(0.f, m_scrollSpeed * 1.7 * dt.asSeconds() * -1);
+    if (vb.top <= 10 && m_enableScroll)
+        m_enableScroll = false;
 
     auto y = m_worldView.getCenter().y;
 }
@@ -668,7 +675,7 @@ void Scene_Easy::update(sf::Time dt) {
     adjustPlayer();
     keepEntitiesInBounds();
     checkPlayerState();
-    sMovement(dt);
+    sMovement(dt); 
     sCollisions();
     sGunUpdate(dt);
     //spawnEnemies();

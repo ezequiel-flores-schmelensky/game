@@ -60,6 +60,8 @@ private:
     bool						    m_drawTextures{true};
     bool						    m_drawAABB{false};
     bool				            m_drawGrid{false};
+    bool				            m_finalBoss{false};
+    bool				            m_enableScroll{true};
 
     void	                        onEnd() override;
 
