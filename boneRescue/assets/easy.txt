@@ -140,3 +140,18 @@ Enemy		Dove               0         0       140     910   20    -105   0
 Enemy		GangsterCat        0         1       500     820   20    -105   0
 #Enemy		Spider             0         0       880     670   20     0     0
 #Enemy		Spider             0         1       140     670   20     0     0
+
+### Final Stage
+## Ostacles     Type            Rotation     xPos       yPos   Cr   
+Obstacle        SillonLarge        0         170        160	40
+Obstacle        SillonLarge        0         345        160	40
+Obstacle        Bone               0         510        90	40
+Obstacle        SillonLarge        0         670        160	40
+Obstacle        SillonLarge        0         845        160	40
+
+## Enemies      Type        	Rotation    Flip     xPos    yPos  Cr   xVel   yVel  
+Enemy		BigCat             0         0       530     310   100   -105     0
+
+
+
+

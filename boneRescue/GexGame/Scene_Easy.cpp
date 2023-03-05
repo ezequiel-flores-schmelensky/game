@@ -195,6 +195,12 @@ void Scene_Easy::keepEntitiesInBounds() {
                 }
             }
 
+            if (rComp.name == "BigCat" && 
+                ((tfm.pos.x < (vb.left + rSize.x / 2.f + 200) ||
+                    (tfm.pos.x) >(vb.left + vb.width - rSize.x / 2.f - 200)))) {
+                forniture = true; 
+            }
+
             if (tfm.pos.x < (vb.left + rSize.x / 2.f + 100) || 
                 (tfm.pos.x) >(vb.left + vb.width - rSize.x / 2.f - 100) || 
                 forniture) {
@@ -209,6 +215,8 @@ void Scene_Easy::keepEntitiesInBounds() {
             //    tfm.vel.y *= -1;
             //}
         }
+
+
     }
 }
 
@@ -676,7 +684,7 @@ void Scene_Easy::update(sf::Time dt) {
     keepEntitiesInBounds();
     checkPlayerState();
     sMovement(dt); 
-    sCollisions();
+    //sCollisions();
     sGunUpdate(dt);
     //spawnEnemies();
    /*sGunUpdate(dt);
@@ -887,7 +895,14 @@ void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy, std::string animat
         bv.y = 150.f;
         angle = flipped?280:20;
         collision = 20;
+    } else if (animationType == "BigCat") {
+        bAnimation = "BowlingBall";
+        bv.x = flipped ? 150.f : -150.f;
+        bv.y = 150.f;
+        angle = flipped ? 280 : 20;
+        collision = 20;
     }
+
     
     bullet->addComponent<CTransform>(pos, bv, angle);
     bullet->addComponent<CAnimation>(m_game->assets().getAnimation(bAnimation));
@@ -930,7 +945,9 @@ void Scene_Easy::sGunUpdate(sf::Time dt) {
                     else if (rComp.name == "Dove") 
                         gun.countdown = m_fireDoveInterval / (1.f + gun.fireRate);
                     else if (rComp.name == "Spider")
-                        gun.countdown = m_fireSpiderInterval / (1.f + gun.fireRate);                
+                        gun.countdown = m_fireSpiderInterval / (1.f + gun.fireRate);    
+                    else if (rComp.name == "BigCat")
+                        gun.countdown = m_fireBigCatInterval / (1.f + gun.fireRate);
                 } else
                     gun.countdown = m_fireInterval / (1.f + gun.fireRate);
 
@@ -1086,7 +1103,7 @@ void Scene_Easy::spawnEnemies() {
 
 }
 
-void Scene_Easy::sAutoPilot(const sf::Time &dt) {// autopilot enemties
+void Scene_Easy::sAutoPilot(const sf::Time &dt) {// autopilot big cat
     for (auto e: m_entityManager.getEntities("enemy")) {
         if (e->hasComponent<CAutoPilot>()) {
             auto &ai = e->getComponent<CAutoPilot>();

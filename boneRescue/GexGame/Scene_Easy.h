@@ -53,6 +53,7 @@ private:
     sf::Time                        m_fireDoveInterval{ sf::seconds(7) };
     sf::Time                        m_fireCatInterval{ sf::seconds(5) };
     sf::Time                        m_fireSpiderInterval{ sf::seconds(10) };
+    sf::Time                        m_fireBigCatInterval{ sf::seconds(3) };
 
     sf::Vector2f                    m_spawnPosition;
     sf::Vector2f                    m_spawnPlayerPosition;
