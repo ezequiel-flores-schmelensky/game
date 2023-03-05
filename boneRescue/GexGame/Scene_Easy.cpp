@@ -266,10 +266,9 @@ void Scene_Easy::playerMovement() {
 
 void Scene_Easy::sCollisions() {
     checkDogCollision();
-    checkBarkCollision();
+    checkGunCollision();
     checkPickupCollision();
     //checkMissileCollision();
-    //checkPickupCollision();
 }
 
 
@@ -427,7 +426,7 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
     }
 }
 
-void Scene_Easy::checkBarkCollision() {
+void Scene_Easy::checkGunCollision() {
     // Player Bullets
     for (auto bullet: m_entityManager.getEntities("roarBlue")) {
         if (bullet->hasComponent<CTransform>() && bullet->hasComponent<CCollision>()) {
@@ -459,11 +458,10 @@ void Scene_Easy::checkBarkCollision() {
         }
     }
 
-
     // Enemy Bullets
-    /*if (m_player->hasComponent<CCollision>()) {
-        auto pPos = m_player->getComponent<CTransform>().pos;
-        auto pCr = m_player->getComponent<CCollision>().radius;
+    if (m_player->hasComponent<CCollision>()) {
+        auto& pPos = m_player->getComponent<CTransform>().pos;
+        auto& pCr = m_player->getComponent<CCollision>().radius;
 
         for (auto bullet: m_entityManager.getEntities("enemyBullet")) {
             if (bullet->hasComponent<CTransform>() && bullet->hasComponent<CCollision>()) {
@@ -480,7 +478,7 @@ void Scene_Easy::checkBarkCollision() {
                 }
             }
         }
-    }*/
+    }
 }
 
 
@@ -614,7 +612,7 @@ void Scene_Easy::adjustScroll(sf::Time& dt) {
     auto& pos = m_player->getComponent<CTransform>().pos;
     auto cr = m_player->getComponent<CCollision>().radius;
 
-    if (pos.y - 100 < vb.top)
+    if (pos.y - 300 < vb.top)
         m_worldView.move(0.f, m_scrollSpeed * dt.asSeconds() * -1);
     if (pos.y + 100 > vb.top + vb.height - cr && pos.y < m_worldBounds.height - 100 - cr)
         m_worldView.move(0.f, m_scrollSpeed * dt.asSeconds());
@@ -917,10 +915,16 @@ void Scene_Easy::sGunUpdate(sf::Time dt) {
 
             if (gun.isFiring && gun.countdown < sf::Time::Zero && vb.top < pos.y) {
                 gun.isFiring = false;
+                 
                 
-                if (isEnemy)   
-                    gun.countdown = m_fireEnemyInterval / (1.f + gun.fireRate);
-                else
+                if (isEnemy) {
+                    if (rComp.name == "GangsterCat")
+                        gun.countdown = m_fireCatInterval / (1.f + gun.fireRate);
+                    else if (rComp.name == "Dove") 
+                        gun.countdown = m_fireDoveInterval / (1.f + gun.fireRate);
+                    else if (rComp.name == "Spider")
+                        gun.countdown = m_fireSpiderInterval / (1.f + gun.fireRate);                
+                } else
                     gun.countdown = m_fireInterval / (1.f + gun.fireRate);
 
                 auto pos = e->getComponent<CTransform>().pos;
