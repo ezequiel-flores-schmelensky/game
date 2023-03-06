@@ -26,9 +26,9 @@ const sf::Time GameEngine::TIME_PER_FRAME = sf::seconds((1.f / 60.f));
 GameEngine::GameEngine(const std::string& configPath) {
     init(configPath);
     m_assets.loadFromFile(configPath);
-    m_window.create(sf::VideoMode(m_windowSize.x, m_windowSize.y), "Game Project");
+    m_window.create(sf::VideoMode(m_windowSize.x, m_windowSize.y), "Bone Rescue");
 
-    m_statisticsText.setFont(m_assets.getFont("Arial"));
+    m_statisticsText.setFont(m_assets.getFont("Climate"));
     m_statisticsText.setPosition(15.0f, 15.0f);
     m_statisticsText.setCharacterSize(15);
 
@@ -101,9 +101,8 @@ void GameEngine::init(const std::string &configPath) {
 
 void GameEngine::run() {
 
-    //MusicPlayer::getInstance().play("menuTheme");
-    //MusicPlayer::getInstance().setVolume(10);
-    //MusicPlayer::getInstance().setVolume(2);
+    MusicPlayer::getInstance().play("menuTheme");
+    MusicPlayer::getInstance().setVolume(4);
 
     sf::Clock clock;
     sf::Time timeSinceLastUpdate{sf::Time::Zero};

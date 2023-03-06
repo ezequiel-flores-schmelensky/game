@@ -6,9 +6,9 @@
 
 
 MusicPlayer::MusicPlayer() {
-    m_filenames["gameTheme"] = "../assets/Music/MissionTheme.ogg";
-    m_filenames["menuTheme"] = "../assets/Music/MenuTheme.ogg";
-
+    m_filenames["baseGameTheme"] = "../assets/Music/BaseGameTheme.ogg";
+    m_filenames["menuTheme"]     = "../assets/Music/MenuTheme.ogg";
+    m_filenames["bossTheme"]     = "../assets/Music/BossTheme.ogg";  
 }
 
 

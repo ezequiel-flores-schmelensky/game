@@ -5,6 +5,7 @@ Window  1024 768
 Font    Arial      ../assets/fonts/arial.ttf
 Font    Mario      ../assets/fonts/mario.ttf
 Font    Megaman    ../assets/fonts/megaman.ttf
+Font    Climate    ../assets/fonts/climate.ttf
 
 
 Texture Entities    ../assets/media/game_entities.png
