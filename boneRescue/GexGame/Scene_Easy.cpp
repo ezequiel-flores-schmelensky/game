@@ -250,7 +250,7 @@ void Scene_Easy::sMovement(sf::Time dt) {
         }
     }
 
-    if ((m_player->getComponent<CTransform>().pos.y - m_player->getComponent<CCollision>().radius) <= 100) {
+    if ((m_player->getComponent<CTransform>().pos.y - m_player->getComponent<CCollision>().radius) <= 150) {
         m_player->addComponent<CState>().state = "win";
         setPaused(true);
     }
