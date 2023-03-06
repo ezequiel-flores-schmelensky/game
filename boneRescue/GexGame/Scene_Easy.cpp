@@ -36,8 +36,9 @@ Scene_Easy::Scene_Easy(GameEngine *gameEngine, const std::string &configPath)
     registerActions();
     spawnPlayer();
 
-    //MusicPlayer::getInstance().play("gameTheme");
-    //MusicPlayer::getInstance().setVolume(1);
+    MusicPlayer::getInstance().stop();
+    MusicPlayer::getInstance().play("baseGameTheme");
+    MusicPlayer::getInstance().setVolume(5);
 
 }
 

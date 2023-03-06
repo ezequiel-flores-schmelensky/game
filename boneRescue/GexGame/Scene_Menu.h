@@ -16,6 +16,10 @@ private:
     std::vector<std::string>	                    m_levelPaths;
     int							                    m_menuIndex{0};
     std::string					                    m_title;
+    std::shared_ptr<Entity>		                    m_player;
+    std::shared_ptr<Entity>		                    m_cat;
+    std::shared_ptr<Entity>		                    m_big_cat;
+    std::shared_ptr<Entity>		                    m_bone;
 
 
     void                        init();
