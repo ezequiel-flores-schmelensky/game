@@ -27,7 +27,7 @@
 class EntityManager;
 
 using ComponentTuple = std::tuple<CSprite, CShape, CRectShape, CTransform, CState,
-CCollision, CHealth, CInput, CGun, CAnimation, CMissiles, CAutoPilot, CPickup>;
+CCollision, CHealth, CInput, CGun, CAnimation, CMissiles, CAutoPilot, CPickup, CLifespan>;
 
 class Entity {
 private:

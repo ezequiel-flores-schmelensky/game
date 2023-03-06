@@ -196,6 +196,12 @@ void Scene_Easy::keepEntitiesInBounds() {
                 }
             }
 
+            if (rComp.name == "BigCat" && 
+                ((tfm.pos.x < (vb.left + rSize.x / 2.f + 200) ||
+                    (tfm.pos.x) >(vb.left + vb.width - rSize.x / 2.f - 200)))) {
+                forniture = true; 
+            }
+
             if (tfm.pos.x < (vb.left + rSize.x / 2.f + 100) || 
                 (tfm.pos.x) >(vb.left + vb.width - rSize.x / 2.f - 100) || 
                 forniture) {
@@ -209,6 +215,18 @@ void Scene_Easy::keepEntitiesInBounds() {
             //if (tfm.pos.y - rSize.y / 2.f < vb.top || (tfm.pos.y + r) >(vb.top + vb.height)) {
             //    tfm.vel.y *= -1;
             //}
+        }
+    }
+
+    for (auto e : m_entityManager.getEntities("enemyBullet")) {
+        auto& rComp = e->getComponent<CRectShape>();
+        if (rComp.name == "BowlingBall") {
+            auto& tfm = e->getComponent<CTransform>();
+            auto& r   = e->getComponent<CCollision>().radius;
+            if (tfm.pos.x - r < (vb.left + 100.f) || (tfm.pos.x + r) > (vb.width - 100.f))
+                tfm.vel.x *= -1;
+            if (tfm.pos.y - r < (vb.top + 190.f) || (tfm.pos.y + r) > vb.height)
+                tfm.vel.y *= -1;
         }
     }
 }
@@ -617,9 +635,8 @@ void Scene_Easy::adjustScroll(sf::Time& dt) {
         m_worldView.move(0.f, m_scrollSpeed * dt.asSeconds() * -1);
     if (pos.y + 100 > vb.top + vb.height - cr && pos.y < m_worldBounds.height - 100 - cr && m_enableScroll)
         m_worldView.move(0.f, m_scrollSpeed * dt.asSeconds());
-    if (pos.y < 700 && !m_finalBoss && m_enableScroll) {
+    if (pos.y < 700 && !m_finalBoss && m_enableScroll)
         m_finalBoss = true;
-    }
     if (m_finalBoss && m_enableScroll)
         m_worldView.move(0.f, m_scrollSpeed * 1.7 * dt.asSeconds() * -1);
     if (vb.top <= 10 && m_enableScroll)
@@ -679,6 +696,7 @@ void Scene_Easy::update(sf::Time dt) {
     sMovement(dt); 
     sCollisions();
     sGunUpdate(dt);
+    sLifespan(dt);
     //spawnEnemies();
    /*sGunUpdate(dt);
     sAnimation(dt);
@@ -888,10 +906,21 @@ void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy, std::string animat
         bv.y = 150.f;
         angle = flipped?280:20;
         collision = 20;
+    } else if (animationType == "BigCat") {
+        bAnimation = "BowlingBall";
+        bv.x = flipped ? 150.f : -150.f;
+        bv.y = 150.f;
+        angle = flipped ? 280 : 20;
+        pos.x = flipped ? pos.x - 50.f: pos.x + 50.f;
+        pos.y = pos.y - 50.f;
+        collision = 30;
+        bullet->addComponent<CLifespan>(m_ballLifeSpan);
     }
+
     
     bullet->addComponent<CTransform>(pos, bv, angle);
     bullet->addComponent<CAnimation>(m_game->assets().getAnimation(bAnimation));
+    bullet->addComponent<CRectShape>(sf::Vector2f(0.f, 0.f), sf::Vector2f(0.f, 0.f), bAnimation);
     bullet->addComponent<CCollision>(collision);
 
     //std::string sfx = (isEnemy) ? "EnemyGunfire" : "AlliedGunfire";
@@ -931,7 +960,9 @@ void Scene_Easy::sGunUpdate(sf::Time dt) {
                     else if (rComp.name == "Dove") 
                         gun.countdown = m_fireDoveInterval / (1.f + gun.fireRate);
                     else if (rComp.name == "Spider")
-                        gun.countdown = m_fireSpiderInterval / (1.f + gun.fireRate);                
+                        gun.countdown = m_fireSpiderInterval / (1.f + gun.fireRate);    
+                    else if (rComp.name == "BigCat")
+                        gun.countdown = m_fireBigCatInterval / (1.f + gun.fireRate);
                 } else
                     gun.countdown = m_fireInterval / (1.f + gun.fireRate);
 
@@ -1087,7 +1118,7 @@ void Scene_Easy::spawnEnemies() {
 
 }
 
-void Scene_Easy::sAutoPilot(const sf::Time &dt) {// autopilot enemties
+void Scene_Easy::sAutoPilot(const sf::Time &dt) {// autopilot big cat
     for (auto e: m_entityManager.getEntities("enemy")) {
         if (e->hasComponent<CAutoPilot>()) {
             auto &ai = e->getComponent<CAutoPilot>();
@@ -1124,3 +1155,31 @@ void Scene_Easy::sRemoveEntitiesOutOfGame() {
     }
 }
 
+void Scene_Easy::sLifespan(sf::Time dt) {
+
+    for (auto& e : m_entityManager.getEntities()) {
+        if (e->hasComponent<CLifespan>()) {
+            auto& ls = e->getComponent<CLifespan>();
+
+            ls.remaining -= dt;
+            if (ls.remaining <= sf::Time::Zero) {
+                e->destroy();
+                int pickupType = 0;
+                auto& pos = e->getComponent<CTransform>().pos;
+                std::string animation{ "" };
+
+                std::uniform_int_distribution flipPickupType(0, 3);
+                pickupType = flipPickupType(rng);
+                if (pickupType < 2 ) {
+                    animation = pickupType == 0 ? "PowerUp1" : "PowerUp2";
+                    auto pickup = m_entityManager.addEntity("pickup");
+
+                    pickup->addComponent<CTransform>(pos, sf::Vector2f(0.f, 0.f));
+                    pickup->addComponent<CCollision>(20);
+                    pickup->addComponent<CPickup>(pickupType);
+                    pickup->addComponent<CAnimation>(m_game->assets().getAnimation(animation));
+                }
+            }
+        }
+    }
+}

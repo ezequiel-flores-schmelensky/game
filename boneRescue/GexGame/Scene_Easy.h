@@ -53,6 +53,8 @@ private:
     sf::Time                        m_fireDoveInterval{ sf::seconds(7) };
     sf::Time                        m_fireCatInterval{ sf::seconds(5) };
     sf::Time                        m_fireSpiderInterval{ sf::seconds(10) };
+    sf::Time                        m_fireBigCatInterval{ sf::seconds(10) };
+    int                             m_ballLifeSpan{ 8 };
 
     sf::Vector2f                    m_spawnPosition;
     sf::Vector2f                    m_spawnPlayerPosition;
@@ -98,6 +100,7 @@ private:
     void                            checkGunCollision();
     void                            checkPickupCollision();
     void                            checkIfDead(NttPtr e);
+    void                            sLifespan(sf::Time dt);
 
 public:
     Scene_Easy(GameEngine* gameEngine, const std::string& configPath);
