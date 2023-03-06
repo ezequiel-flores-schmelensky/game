@@ -150,7 +150,7 @@ Obstacle        SillonLarge        0         670        160	40
 Obstacle        SillonLarge        0         845        160	40
 
 ## Enemies      Type        	Rotation    Flip     xPos    yPos  Cr   xVel   yVel  
-Enemy		BigCat             0         0       530     310   100   -105     0
+Enemy		BigCat             0         0       530     310   120   -105     0
 
 
 
