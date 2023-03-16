@@ -14,8 +14,6 @@ Texture Livingroom  ../assets/media/livingroom.PNG
 
 JSON                ../assets/media/game_entities.json
 
-
-#
 #  Animation    Name            Texture     Speed   Repeats
 Animation       Dog             Entities    1        yes
 Animation       DogLeft         Entities    1        yes
@@ -42,12 +40,22 @@ Animation       Tv              Entities    1        yes
 Animation       Armchair        Entities    1        yes
 Animation       Plant           Entities    1        yes
 
-
-#
 # SOUNDS
-Sound AlliedGunfire ../assets/Sound/AlliedGunfire.wav
-Sound CollectPickup ../assets/Sound/CollectPickup.wav
-Sound EnemyGunfire  ../assets/Sound/EnemyGunfire.wav
-Sound Explosion1    ../assets/Sound/Explosion1.wav
-Sound Explosion2    ../assets/Sound/Explosion2.wav
-Sound LaunchMissile ../assets/Sound/LaunchMissile.wav
+Sound Bark          ../assets/Sound/Bark.wav
+Sound BigCat        ../assets/Sound/BigCat.wav
+Sound BowlingBall   ../assets/Sound/BowlingBall.wav
+Sound Bullet        ../assets/Sound/Bullet.wav
+Sound Bump          ../assets/Sound/Bump.wav
+Sound Defeated       ../assets/Sound/Defeated.wav
+Sound Destroy       ../assets/Sound/Destroy.wav
+Sound DogWhimper    ../assets/Sound/DogWhimper.wav
+Sound DovePo        ../assets/Sound/DovePo.wav
+Sound EnemyGunFire  ../assets/Sound/EnemyGunFire.wav
+Sound Gameover      ../assets/Sound/Gameover.wav
+Sound Lion          ../assets/Sound/Lion.wav
+Sound Pickup        ../assets/Sound/Pickup.wav
+Sound Splash        ../assets/Sound/Splash.wav
+Sound Strike        ../assets/Sound/Strike.wav
+Sound Web           ../assets/Sound/Web.wav
+Sound Win           ../assets/Sound/Win.wav
+

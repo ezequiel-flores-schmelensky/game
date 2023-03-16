@@ -88,8 +88,7 @@ void GameEngine::init(const std::string &configPath) {
             } else if (token == "Sound") {
                 std::string key, path;
                 config >> key >> path;
-
-                //SoundPlayer::getInstance().loadBuffer(key, path);
+                SoundPlayer::getInstance().loadBuffer(key, path);
             }
             config >> token;
         }
@@ -208,6 +207,9 @@ bool GameEngine::isRunning() {
 }
 
 void  GameEngine::quitLevel() {
+    MusicPlayer::getInstance().stop();
+    MusicPlayer::getInstance().play("menuTheme");
+    MusicPlayer::getInstance().setVolume(4);
     changeScene(SceneID::MENU, true);
 }
 

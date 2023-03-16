@@ -90,12 +90,24 @@ void Scene_Easy::loadFromFile(const std::string &configPath) {
             
             obsctacle->addComponent<CRectShape>(recSize, recPos);
 
+        } else if (token == "Price") {
+            std::string name;
+            sf::Vector2f pos;
+            float rot, cr;
+            config >> name >> rot >> pos.x >> pos.y >> cr;
+            auto vel = sf::Vector2f(0.f, 0.f);
+
+            auto obsctacle = m_entityManager.addEntity("bone");
+            obsctacle->addComponent<CTransform>(pos, vel, rot);
+            obsctacle->addComponent<CAnimation>(m_game->assets().getAnimation(name));
+            obsctacle->addComponent<CCollision>(cr);
+
         } else if (token == "Enemy") {
             std::string name;
             sf::Vector2f pos, vel;
-            int flip; 
+            int flip, healt; 
             float rot, cr;
-            config >> name >> rot >> flip >> pos.x >> pos.y >> cr >> vel.x >> vel.y;
+            config >> name >> rot >> flip >> pos.x >> pos.y >> cr >> vel.x >> vel.y >> healt;
             
 
             auto enemy = m_entityManager.addEntity("enemy");
@@ -106,7 +118,7 @@ void Scene_Easy::loadFromFile(const std::string &configPath) {
             if (flip == 1)
                 eSprit.setScale(-1.0f, 1.0f);
             enemy->addComponent<CCollision>(cr);
-            enemy->addComponent<CHealth>(20);
+            enemy->addComponent<CHealth>(healt);
 
             sf::FloatRect eGBounds = eSprit.getGlobalBounds();
             auto& ePos = enemy->getComponent<CTransform>().pos;
@@ -250,7 +262,7 @@ void Scene_Easy::sMovement(sf::Time dt) {
         }
     }
 
-    if ((m_player->getComponent<CTransform>().pos.y - m_player->getComponent<CCollision>().radius) <= 150) {
+    if ((m_player->getComponent<CTransform>().pos.y - m_player->getComponent<CCollision>().radius) <= 90) {
         m_player->addComponent<CState>().state = "win";
         setPaused(true);
     }
@@ -271,7 +283,7 @@ void Scene_Easy::playerMovement() {
     if (pInput.up) pv.y -= 1;
     if (pInput.down) pv.y += 1;
     
-    if (m_stopers["T"] && pInput.up) pv.y = 0;
+    if (m_stopers["T"] && pInput.up) pv.y = 0; 
     if (m_stopers["B"] && pInput.down) pv.y = 0;
     if (m_stopers["L"] && pInput.left) pv.x = 0;
     if (m_stopers["R"] && pInput.right) pv.x = 0;
@@ -292,22 +304,12 @@ void Scene_Easy::sCollisions() {
 
 
 void Scene_Easy::checkIfDead(NttPtr e) {
-
-    std::uniform_int_distribution flip(0, 1);
-
     // check for planes that need to be destroyed
     if (e->hasComponent<CHealth>()) {
         if (e->getComponent<CHealth>().hp <= 0) {
-            //e->addComponent<CAnimation>(m_game->assets().getAnimation("explosion"));
             e->getComponent<CTransform>().vel = sf::Vector2f(0.f, 0.f);
             e->addComponent<CState>().state = "dead";
             e->removeComponent<CCollision>();
-
-            /*if (flip(rng) == 0)
-                SoundPlayer::getInstance().play("Explosion1", e->getComponent<CTransform>().pos);
-            else
-                SoundPlayer::getInstance().play("Explosion2", e->getComponent<CTransform>().pos);*/
-
         }
     }
 }
@@ -354,7 +356,7 @@ void Scene_Easy::checkPickupCollision() {// check for plane collision
                             break;
                     }
                    
-                    //SoundPlayer::getInstance().play("CollectPickup", e->getComponent<CTransform>().pos);
+                    SoundPlayer::getInstance().play("Pickup", p->getComponent<CTransform>().pos);
                     p->destroy();
                 }
             }
@@ -406,13 +408,13 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
             }
         }
 
-        auto pPos = m_player->getComponent<CTransform>().pos;
-        auto pCr = m_player->getComponent<CCollision>().radius;
+        auto& pPos = m_player->getComponent<CTransform>().pos;
+        auto& pCr = m_player->getComponent<CCollision>().radius;
 
         for (auto e : m_entityManager.getEntities("enemy")) {
             if (e->hasComponent<CTransform>() && e->hasComponent<CCollision>()) {
-                auto ePos = e->getComponent<CTransform>().pos;
-                auto eCr = e->getComponent<CCollision>().radius;
+                auto& ePos = e->getComponent<CTransform>().pos;
+                auto& eCr = e->getComponent<CCollision>().radius;
 
                 // planes have collided
                 if (dist(ePos, pPos) < (eCr + pCr)) {
@@ -436,6 +438,7 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
 
                     checkIfDead(m_player);
                     if (m_player->getComponent<CState>().state == "dead") {
+                        SoundPlayer::getInstance().play("Gameover", pPos);
                         setPaused(true);
                     }
 
@@ -458,17 +461,23 @@ void Scene_Easy::checkGunCollision() {
                     auto eCr = e->getComponent<CCollision>().radius;
 
                     if (dist(ePos, bPos) < (eCr + bCr)) {
+                        auto& rComp = e->getComponent<CRectShape>();
                         
                         e->getComponent<CHealth>().hp -= 20;
                         bullet->destroy();
                         checkIfDead(e);
-                        
+                        if (rComp.name == "BigCat")
+                            SoundPlayer::getInstance().play("BigCat", ePos);
+                        else
+                            SoundPlayer::getInstance().play("Destroy", ePos);
+
                         if (e->getComponent<CState>().state == "dead") {
+                            if (rComp.name == "BigCat")
+                                SoundPlayer::getInstance().play("Defeated", ePos);
                             e->destroy();
                         }
                         int hPickup = hasPickup(rng);
                         if (e->getComponent<CState>().state == "dead" && hPickup == 1) {
-                            auto& rComp = e->getComponent<CRectShape>();
                             droppingAPickup(e->getComponent<CTransform>().pos, rComp.name);
                         }
                     }
@@ -489,7 +498,16 @@ void Scene_Easy::checkGunCollision() {
 
                 if (dist(pPos, bPos) < (pCr + bCr)) {
                     m_player->getComponent<CHealth>().hp -= 10;
+                    auto& rComp = bullet->getComponent<CRectShape>();
+
+                    if (rComp.name == "DovePo" || rComp.name == "Web")
+                        SoundPlayer::getInstance().play("Splash", pPos);
+                    if (rComp.name == "Bullet")
+                        SoundPlayer::getInstance().play("DogWhimper", pPos);
+                    if (rComp.name == "BowlingBall")
+                        SoundPlayer::getInstance().play("Strike", pPos);
                     bullet->destroy();
+                   
                     checkIfDead(m_player);
                     if (m_player->getComponent<CState>().state == "dead") {
                         setPaused(true);
@@ -635,8 +653,13 @@ void Scene_Easy::adjustScroll(sf::Time& dt) {
         m_worldView.move(0.f, m_scrollSpeed * dt.asSeconds() * -1);
     if (pos.y + 100 > vb.top + vb.height - cr && pos.y < m_worldBounds.height - 100 - cr && m_enableScroll)
         m_worldView.move(0.f, m_scrollSpeed * dt.asSeconds());
-    if (pos.y < 700 && !m_finalBoss && m_enableScroll)
+    // Check if final boss is reached
+    if (pos.y < 700 && !m_finalBoss && m_enableScroll) {
         m_finalBoss = true;
+        MusicPlayer::getInstance().stop();
+        MusicPlayer::getInstance().play("bossTheme");
+        MusicPlayer::getInstance().setVolume(5);
+    }
     if (m_finalBoss && m_enableScroll)
         m_worldView.move(0.f, m_scrollSpeed * 1.7 * dt.asSeconds() * -1);
     if (vb.top <= 10 && m_enableScroll)
@@ -822,24 +845,27 @@ void Scene_Easy::sRender() {
     }
 
     if (m_isPaused) {
-        //MusicPlayer::getInstance().setVolume(0);
+        MusicPlayer::getInstance().setVolume(0);
         std::string pausedTxt{ "PAUSED" };
         int sizeTxt = 128;
         if (m_player->hasComponent<CState>() && m_player->getComponent<CState>().state == "dead") {
-            pausedTxt = "Game over You Lose!";
+            MusicPlayer::getInstance().stop();
+            pausedTxt = "GAME OVER!";
             sizeTxt = 30;
         } else if (m_player->hasComponent<CState>() && m_player->getComponent<CState>().state == "win") {
-            pausedTxt = "GAM OVER YOU WIN!!!!";
+            SoundPlayer::getInstance().play("Win", m_player->getComponent<CTransform>().pos);
+            MusicPlayer::getInstance().stop();
+            pausedTxt = "YOU WIN!!!!";
             sizeTxt = 26;
         }
-        sf::Text paused(pausedTxt, m_game->assets().getFont("Megaman"), sizeTxt);
+        sf::Text paused(pausedTxt, m_game->assets().getFont("Climate"), sizeTxt);
         centerOrigin(paused);
         auto bounds = getViewBounds();
         paused.setPosition(bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f);
         m_game->window().draw(paused);
-    }// else {
-     //   MusicPlayer::getInstance().setVolume(1);;
-    //}
+    } else {
+        MusicPlayer::getInstance().setVolume(5);
+    }
 
     // draw bounding boxes
     if (m_drawAABB) {
@@ -888,24 +914,28 @@ void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy, std::string animat
         angle = bearing(bv);
         bAnimation = "RoarBlue";
         collision = 20;
+        SoundPlayer::getInstance().play("Bark", pos);
     } else if (animationType == "GangsterCat") {
         bAnimation = "Bullet";
         bv.x = flipped? -300.f:300.f;
         bv.y = 0.f;
         angle = flipped?180:0;
         collision = 3;
+        SoundPlayer::getInstance().play("Bullet", pos);
     } else if (animationType == "Dove") {
         bAnimation = "DovePo";
         bv.x = 0.f;
         bv.y = 300.f;
         angle = 0;
         collision = 5;
+        SoundPlayer::getInstance().play("DovePo", pos);
     } else if (animationType == "Spider") {
         bAnimation = "Web";
         bv.x = flipped?150.f: -150.f;
         bv.y = 150.f;
         angle = flipped?280:20;
         collision = 20;
+        SoundPlayer::getInstance().play("Web", pos);
     } else if (animationType == "BigCat") {
         bAnimation = "BowlingBall";
         bv.x = flipped ? 150.f : -150.f;
@@ -914,6 +944,7 @@ void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy, std::string animat
         pos.x = flipped ? pos.x - 50.f: pos.x + 50.f;
         pos.y = pos.y - 50.f;
         collision = 30;
+        SoundPlayer::getInstance().play("BowlingBall", pos);
         bullet->addComponent<CLifespan>(m_ballLifeSpan);
     }
 
@@ -950,7 +981,7 @@ void Scene_Easy::sGunUpdate(sf::Time dt) {
             auto& pos = e ->getComponent<CTransform>().pos;
             auto vb = getViewBounds();
 
-            if (gun.isFiring && gun.countdown < sf::Time::Zero && vb.top < pos.y) {
+            if (gun.isFiring && gun.countdown < sf::Time::Zero && vb.top < pos.y && (vb.top + vb.height) > pos.y) {
                 gun.isFiring = false;
                  
                 
