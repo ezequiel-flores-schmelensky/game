@@ -46,7 +46,7 @@ Sound BigCat        ../assets/Sound/BigCat.wav
 Sound BowlingBall   ../assets/Sound/BowlingBall.wav
 Sound Bullet        ../assets/Sound/Bullet.wav
 Sound Bump          ../assets/Sound/Bump.wav
-Sound Defeated       ../assets/Sound/Defeated.wav
+Sound Defeated      ../assets/Sound/Defeated.wav
 Sound Destroy       ../assets/Sound/Destroy.wav
 Sound DogWhimper    ../assets/Sound/DogWhimper.wav
 Sound DovePo        ../assets/Sound/DovePo.wav

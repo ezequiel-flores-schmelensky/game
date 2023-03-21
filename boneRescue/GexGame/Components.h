@@ -122,6 +122,8 @@ struct CTransform : public Component {
     sf::Vector2f scale{1.f, 1.f};
     float rot{0.f};
     float rotVel{0.f};
+    bool isFrozen{false};
+    sf::Time frozingcountdown{sf::Time::Zero};
 
     CTransform() = default;
 
