@@ -54,6 +54,7 @@ private:
     sf::Time                        m_fireCatInterval{ sf::seconds(5) };
     sf::Time                        m_fireSpiderInterval{ sf::seconds(10) };
     sf::Time                        m_fireBigCatInterval{ sf::seconds(10) };
+    sf::Time                        m_frozingInterval{ sf::seconds(2) };
     int                             m_ballLifeSpan{ 8 };
 
     sf::Vector2f                    m_spawnPosition;
@@ -110,7 +111,7 @@ public:
     void		                    sRender() override;
 
 
-    void playerMovement();
+    void playerMovement(sf::Time dt);
     void checkPlayerState();
 };
 

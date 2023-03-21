@@ -250,7 +250,7 @@ void Scene_Easy::onEnd() {
 
 
 void Scene_Easy::sMovement(sf::Time dt) {
-    playerMovement();
+    playerMovement(dt);
 
     // move all objects
     for (auto e: m_entityManager.getEntities()) {
@@ -269,7 +269,7 @@ void Scene_Easy::sMovement(sf::Time dt) {
 }
 
 
-void Scene_Easy::playerMovement() {
+void Scene_Easy::playerMovement(sf::Time dt) {
 
     // no movement if player is dead
     if (m_player->hasComponent<CState>() && m_player->getComponent<CState>().state == "dead")
@@ -288,9 +288,22 @@ void Scene_Easy::playerMovement() {
     if (m_stopers["L"] && pInput.left) pv.x = 0;
     if (m_stopers["R"] && pInput.right) pv.x = 0;
 
-    
+    auto& pTrans = m_player->getComponent<CTransform>();
+    if (pTrans.isFrozen) {
+        pTrans.frozingcountdown -= dt;
+        if (pTrans.frozingcountdown <= sf::Time::Zero) {
+            pTrans.isFrozen = false;
+            pTrans.frozingcountdown = sf::Time::Zero;
+            auto& state = m_player->getComponent<CState>().state;
+            state = "stopped";
+        } else {
+            pv.x = 0;
+            pv.y = 0;
+        }  
+    }
+
     pv = normalize(pv);
-    m_player->getComponent<CTransform>().vel = m_playerSpeed * pv;
+    pTrans.vel = m_playerSpeed * pv;
 
 }
 
@@ -488,8 +501,9 @@ void Scene_Easy::checkGunCollision() {
 
     // Enemy Bullets
     if (m_player->hasComponent<CCollision>()) {
-        auto& pPos = m_player->getComponent<CTransform>().pos;
-        auto& pCr = m_player->getComponent<CCollision>().radius;
+        auto& pTrans = m_player->getComponent<CTransform>();
+        auto  pPos   = pTrans.pos;
+        auto& pCr    = m_player->getComponent<CCollision>().radius;
 
         for (auto bullet: m_entityManager.getEntities("enemyBullet")) {
             if (bullet->hasComponent<CTransform>() && bullet->hasComponent<CCollision>()) {
@@ -502,6 +516,12 @@ void Scene_Easy::checkGunCollision() {
 
                     if (rComp.name == "DovePo" || rComp.name == "Web")
                         SoundPlayer::getInstance().play("Splash", pPos);
+                    if (rComp.name == "Web") {
+                        pTrans.frozingcountdown = m_frozingInterval;
+                        pTrans.isFrozen = true;
+                        auto& state = m_player->getComponent<CState>().state;
+                        state = "frozen";
+                    }
                     if (rComp.name == "Bullet")
                         SoundPlayer::getInstance().play("DogWhimper", pPos);
                     if (rComp.name == "BowlingBall")
@@ -679,6 +699,8 @@ void Scene_Easy::checkPlayerState() {// set the player state
         if (xVel >  0.2f) newState = "right";
 
         auto &state = m_player->getComponent<CState>().state;
+        if (state == "frozen") newState = state;
+
         if (state != "dead") {
             if (newState != state) { // only if the state has changed, change the animation
                 state = newState;
@@ -690,6 +712,9 @@ void Scene_Easy::checkPlayerState() {// set the player state
                     m_player->addComponent<CAnimation>(m_game->assets().getAnimation("DogLeft"));
                 if (state == "right")
                     m_player->addComponent<CAnimation>(m_game->assets().getAnimation("DogRight"));
+            } else {
+                if (state == "frozen")
+                    m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Dog"));
             }
         }
     }
@@ -841,6 +866,16 @@ void Scene_Easy::sRender() {
                 text.setPosition(tfm.pos + offset);
                 m_game->window().draw(text);
             }
+
+            if (tfm.isFrozen) {
+                std::string str = "Forzen";
+                text.setString(str);
+                centerOrigin(text);
+
+                sf::Vector2f offset(0.f, 70.f);
+                text.setPosition(tfm.pos + offset);
+                m_game->window().draw(text);
+            }
         }
     }
 
@@ -892,7 +927,13 @@ void Scene_Easy::sAnimation(sf::Time dt) {
 
 
 void Scene_Easy::bark() {
-    m_player->getComponent<CGun>().isFiring = true;
+    auto& pTrans = m_player->getComponent<CTransform>();
+    if (!pTrans.isFrozen)
+        m_player->getComponent<CGun>().isFiring = true;
+    else {
+        SoundPlayer::getInstance().play("Bump", pTrans.pos);
+    }
+        
 }
 
 
@@ -1214,3 +1255,4 @@ void Scene_Easy::sLifespan(sf::Time dt) {
         }
     }
 }
+
