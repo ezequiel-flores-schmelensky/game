@@ -48,11 +48,10 @@ struct CAutoPilot : public Component
 };
 
 
-struct CMissiles : public Component {
-    //size_t    missileCount{5};
-    size_t    missileCount{ 10 };
+struct CWeb : public Component {
+    size_t    webCount{ 2 };
 
-    CMissiles() = default;
+    CWeb() = default;
 };
 
 struct CGun : public Component {

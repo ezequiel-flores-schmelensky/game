@@ -48,13 +48,13 @@ private:
     std::map<String, EnemyConfig>   m_enemyConfig;
 
     float                           m_barkSpeed;
-    float                           m_missileSpeed;
+    float                           m_webSpeed;
     sf::Time                        m_fireInterval{ sf::seconds(2) };
     sf::Time                        m_fireDoveInterval{ sf::seconds(7) };
     sf::Time                        m_fireCatInterval{ sf::seconds(5) };
     sf::Time                        m_fireSpiderInterval{ sf::seconds(10) };
     sf::Time                        m_fireBigCatInterval{ sf::seconds(10) };
-    sf::Time                        m_frozingInterval{ sf::seconds(2) };
+    sf::Time                        m_frozingInterval{ sf::seconds(4) };
     int                             m_ballLifeSpan{ 8 };
 
     sf::Vector2f                    m_spawnPosition;
@@ -74,15 +74,11 @@ private:
     void                            sUpdate(sf::Time dt);
     void                            sGunUpdate(sf::Time dt);
     void                            sAnimation(sf::Time dt);
-    void                            sGuideMissiles(sf::Time dt);
-    void                            sAutoPilot(const sf::Time &dt);
+    void                            sGuideWeb(sf::Time dt);
     void                            sRemoveEntitiesOutOfGame();
 
     // helper functions
-    void                            spawnEnemies();
     sf::Vector2f                    findClosestEnemy(sf::Vector2f mPos);
-    void                            spawnEnemy( std::string type, sf::Vector2f pos);
-    void                            spawnEnemies(std::string type, float offset, size_t numPlanes);
     void                            createBullet(sf::Vector2f pos, bool isEnemy, std::string animationType, float flipped);
     void                            registerActions();
     void                            init(const std::string& configPath);
@@ -94,10 +90,10 @@ private:
     void                            adjustPlayer();
     sf::FloatRect                   getViewBounds();
     void                            bark();
-    void                            fireMissile();
+    void                            launchWeb();
     void                            droppingAPickup(sf::Vector2f pos, std::string enemyType);
     void                            checkDogCollision();
-    void                            checkMissileCollision();
+    void                            checkDogWebCollision();
     void                            checkGunCollision();
     void                            checkPickupCollision();
     void                            checkIfDead(NttPtr e);

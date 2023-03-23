@@ -1,10 +1,10 @@
 
-World 1024 7000
-ScrollSpeed 150
-PlayerSpeed 250
-##EnemySpeed  100
-BarkSpeed 700
-##MissileSpeed 250
+World 1024     7000
+ScrollSpeed    150
+PlayerSpeed    250
+##EnemySpeed   100
+BarkSpeed      700
+WebSpeed       250
 ##FireInterval 2
 
 Bkg Livingroom 	 0 0
