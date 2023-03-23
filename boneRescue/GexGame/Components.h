@@ -123,6 +123,8 @@ struct CTransform : public Component {
     float rotVel{0.f};
     bool isFrozen{false};
     sf::Time frozingcountdown{sf::Time::Zero};
+    bool isLion{false};
+    sf::Time lioncountdown{ sf::Time::Zero };
 
     CTransform() = default;
 

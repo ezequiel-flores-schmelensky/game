@@ -273,6 +273,14 @@ void Scene_Easy::sMovement(sf::Time dt) {
                     }
                 }
             }
+
+            if (tfm.isLion) {
+                tfm.lioncountdown -= dt;
+                if (tfm.lioncountdown <= sf::Time::Zero) {
+                    tfm.isLion = false;
+                    tfm.lioncountdown = sf::Time::Zero;
+                }
+            }
         }
     }
 
@@ -363,7 +371,8 @@ void Scene_Easy::checkPickupCollision() {// check for plane collision
                             pHP += 25;
                             break;
                         case 1: // Lion
-                            pHP += 25;
+                            pTrans.isLion = true;
+                            pTrans.lioncountdown += m_lionInterval;
                             break;
                         case 2: // Web
                             pW += 1;
@@ -466,10 +475,11 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
 
 void Scene_Easy::checkGunCollision() {
     // Player Bullets
-    for (auto bullet: m_entityManager.getEntities("roarBlue")) {
+    for (auto bullet: m_entityManager.getEntities("roar")) {
         if (bullet->hasComponent<CTransform>() && bullet->hasComponent<CCollision>()) {
-            auto bPos = bullet->getComponent<CTransform>().pos;
-            auto bCr = bullet->getComponent<CCollision>().radius;
+            auto  bPos  = bullet->getComponent<CTransform>().pos;
+            auto  bCr   = bullet->getComponent<CCollision>().radius;
+            auto& bComp = bullet->getComponent<CRectShape>();
 
             for (auto e: m_entityManager.getEntities("enemy")) {
                 if (e->hasComponent<CTransform>() && e->hasComponent<CCollision>()) {
@@ -479,7 +489,7 @@ void Scene_Easy::checkGunCollision() {
                     if (dist(ePos, bPos) < (eCr + bCr)) {
                         auto& rComp = e->getComponent<CRectShape>();
                         
-                        e->getComponent<CHealth>().hp -= 20;
+                        e->getComponent<CHealth>().hp -= (bComp.name == "RoarRed"? 40 : 20);
                         bullet->destroy();
                         checkIfDead(e);
                         if (rComp.name == "BigCat")
@@ -826,7 +836,6 @@ void Scene_Easy::sRender() {
         }
     }
 
-
     for (auto e: m_entityManager.getEntities()) {
 
         // draw all entities with textures
@@ -872,6 +881,16 @@ void Scene_Easy::sRender() {
                 centerOrigin(text);
 
                 sf::Vector2f offset(0.f, 70.f);
+                text.setPosition(tfm.pos + offset);
+                m_game->window().draw(text);
+            }
+
+            if (tfm.isLion) {
+                std::string str = "Lion";
+                text.setString(str);
+                centerOrigin(text);
+
+                sf::Vector2f offset(0.f, tfm.isFrozen ? 85.f : 70.f);
                 text.setPosition(tfm.pos + offset);
                 m_game->window().draw(text);
             }
@@ -928,7 +947,7 @@ void Scene_Easy::bark() {
     }       
 }
 
-void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy, std::string animationType, float flipped) {
+void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy, std::string animationType, float flipped, bool isLion) {
     float speed = (isEnemy) ? m_barkSpeed : -m_barkSpeed;
     auto vb = getViewBounds();
     
@@ -936,16 +955,16 @@ void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy, std::string animat
     float collision = 0.f;
     float angle = 0.f;
     std::string bAnimation = "RoarBlue";
-    auto bullet = m_entityManager.addEntity(isEnemy ? "enemyBullet" : "roarBlue");   
+    auto bullet = m_entityManager.addEntity(isEnemy ? "enemyBullet" : "roar");   
 
     if (animationType == "Dog") {
         m_clickPosition.y = vb.top + m_clickPosition.y;
         auto targetDir = normalize(m_clickPosition - pos);
         bv = m_barkSpeed * normalize(targetDir + bv);
         angle = bearing(bv);
-        bAnimation = "RoarBlue";
+        bAnimation = isLion? "RoarRed":"RoarBlue";
         collision = 20;
-        SoundPlayer::getInstance().play("Bark", pos);
+        SoundPlayer::getInstance().play(isLion? "Lion": "Bark", pos);
     } else if (animationType == "GangsterCat") {
         bAnimation = "Bullet";
         bv.x = flipped? -300.f:300.f;
@@ -1027,7 +1046,7 @@ void Scene_Easy::sGunUpdate(sf::Time dt) {
                 auto pos = e->getComponent<CTransform>().pos;
                 
                 if ((isEnemy && !trans.isFrozen) || !isEnemy)
-                    createBullet(pos, isEnemy, rComp.name, rComp.flipped);
+                    createBullet(pos, isEnemy, rComp.name, rComp.flipped, trans.isLion);
             }
         }
     }

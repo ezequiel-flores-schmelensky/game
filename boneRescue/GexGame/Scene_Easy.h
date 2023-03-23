@@ -54,7 +54,8 @@ private:
     sf::Time                        m_fireCatInterval{ sf::seconds(5) };
     sf::Time                        m_fireSpiderInterval{ sf::seconds(10) };
     sf::Time                        m_fireBigCatInterval{ sf::seconds(10) };
-    sf::Time                        m_frozingInterval{ sf::seconds(4) };
+    sf::Time                        m_frozingInterval{ sf::seconds(2) };
+    sf::Time                        m_lionInterval{ sf::seconds(4) };
     int                             m_ballLifeSpan{ 8 };
 
     sf::Vector2f                    m_spawnPosition;
@@ -79,7 +80,7 @@ private:
 
     // helper functions
     sf::Vector2f                    findClosestEnemy(sf::Vector2f mPos);
-    void                            createBullet(sf::Vector2f pos, bool isEnemy, std::string animationType, float flipped);
+    void                            createBullet(sf::Vector2f pos, bool isEnemy, std::string animationType, float flipped, bool isLion);
     void                            registerActions();
     void                            init(const std::string& configPath);
     void                            loadFromFile(const std::string &configPath);
