@@ -28,7 +28,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="Scene_Normal.cpp" />
     <ClCompile Include="Scene_Easy.cpp" />
     <ClCompile Include="Scene_Menu.cpp" />
     <ClCompile Include="SoundPlayer.cpp" />
@@ -45,7 +44,6 @@
     <ClInclude Include="json.h" />
     <ClInclude Include="MusicPlayer.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="Scene_Normal.h" />
     <ClInclude Include="Scene_Easy.h" />
     <ClInclude Include="Scene_Menu.h" />
     <ClInclude Include="SoundPlayer.h" />

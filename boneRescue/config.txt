@@ -10,6 +10,8 @@ Font    Climate    ../assets/fonts/climate.ttf
 
 Texture Entities    ../assets/media/game_entities.png
 Texture Livingroom  ../assets/media/livingroom.PNG
+Texture Garden      ../assets/media/garden.PNG
+Texture Street      ../assets/media/street.PNG
 
 
 JSON                ../assets/media/game_entities.json
