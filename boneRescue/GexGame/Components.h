@@ -48,11 +48,10 @@ struct CAutoPilot : public Component
 };
 
 
-struct CMissiles : public Component {
-    //size_t    missileCount{5};
-    size_t    missileCount{ 10 };
+struct CWeb : public Component {
+    size_t    webCount{ 2 };
 
-    CMissiles() = default;
+    CWeb() = default;
 };
 
 struct CGun : public Component {
@@ -124,6 +123,8 @@ struct CTransform : public Component {
     float rotVel{0.f};
     bool isFrozen{false};
     sf::Time frozingcountdown{sf::Time::Zero};
+    bool isLion{false};
+    sf::Time lioncountdown{ sf::Time::Zero };
 
     CTransform() = default;
 

@@ -67,6 +67,8 @@ void Scene_Easy::loadFromFile(const std::string &configPath) {
             config >> m_playerSpeed;
         } else if (token == "BarkSpeed") {
             config >> m_barkSpeed;
+        } else if (token == "WebSpeed") {
+            config >> m_webSpeed;
         } else if (token == "Obstacle") {
             std::string name;
             sf::Vector2f pos;
@@ -256,9 +258,29 @@ void Scene_Easy::sMovement(sf::Time dt) {
     for (auto e: m_entityManager.getEntities()) {
         if (e->hasComponent<CTransform>()) {
             auto &tfm = e->getComponent<CTransform>();
+            if (!tfm.isFrozen) {
+                tfm.pos += tfm.vel * dt.asSeconds();
+                tfm.rot += tfm.rotVel * dt.asSeconds();
+            } else {
+                tfm.frozingcountdown -= dt;
+                if (tfm.frozingcountdown <= sf::Time::Zero) {
+                    tfm.isFrozen = false;
+                    tfm.frozingcountdown = sf::Time::Zero;
 
-            tfm.pos += tfm.vel * dt.asSeconds();
-            tfm.rot += tfm.rotVel * dt.asSeconds();
+                    if (e->hasComponent<CState>()) {
+                        auto& state = m_player->getComponent<CState>().state;
+                        state = "stopped";
+                    }
+                }
+            }
+
+            if (tfm.isLion) {
+                tfm.lioncountdown -= dt;
+                if (tfm.lioncountdown <= sf::Time::Zero) {
+                    tfm.isLion = false;
+                    tfm.lioncountdown = sf::Time::Zero;
+                }
+            }
         }
     }
 
@@ -290,16 +312,8 @@ void Scene_Easy::playerMovement(sf::Time dt) {
 
     auto& pTrans = m_player->getComponent<CTransform>();
     if (pTrans.isFrozen) {
-        pTrans.frozingcountdown -= dt;
-        if (pTrans.frozingcountdown <= sf::Time::Zero) {
-            pTrans.isFrozen = false;
-            pTrans.frozingcountdown = sf::Time::Zero;
-            auto& state = m_player->getComponent<CState>().state;
-            state = "stopped";
-        } else {
-            pv.x = 0;
-            pv.y = 0;
-        }  
+        pv.x = 0;
+        pv.y = 0;
     }
 
     pv = normalize(pv);
@@ -312,7 +326,7 @@ void Scene_Easy::sCollisions() {
     checkDogCollision();
     checkGunCollision();
     checkPickupCollision();
-    //checkMissileCollision();
+    checkDogWebCollision();
 }
 
 
@@ -330,11 +344,13 @@ void Scene_Easy::checkIfDead(NttPtr e) {
 void Scene_Easy::checkPickupCollision() {// check for plane collision
 
     if (m_player->hasComponent<CCollision>()) {
-        auto pPos = m_player->getComponent<CTransform>().pos;
-        auto pCr = m_player->getComponent<CCollision>().radius;
+        auto& pTrans = m_player->getComponent<CTransform>();
+        auto  pPos   = pTrans.pos;
+        auto  pCr    = m_player->getComponent<CCollision>().radius;
         
         for (auto p : m_entityManager.getEntities("pickup")) {
             if (p->hasComponent<CTransform>() && p->hasComponent<CCollision>()) {
+               
                 auto ePos = p->getComponent<CTransform>().pos;
                 auto eCr = p->getComponent<CCollision>().radius;
 
@@ -342,28 +358,24 @@ void Scene_Easy::checkPickupCollision() {// check for plane collision
                 if (dist(ePos, pPos) < (eCr + pCr)) {
                     auto& pHP  = m_player->getComponent<CHealth>().hp;
                     auto& pGun = m_player->getComponent<CGun>(); 
-                    //auto& pM   = m_player->getComponent<CMissiles>().missileCount;
+                    auto& pW   = m_player->getComponent<CWeb>().webCount;
 
                     auto& eHP = p->getComponent<CHealth>().hp;
                     auto   eP = p->getComponent<CPickup>().pickup;
                     p->removeComponent<CAnimation>();
                     p->removeComponent<CCollision>();
                    
-                    //0 - "healthRefill";
-                    //1 - "missileRefill";
-                    //2 - "fireRate";
-                    //3 - "fireSpread";
                     switch (eP)
                     {
-                        case 0:
+                        case 0: // Food
                             pHP += 25;
                             break;
-                        case 1:
-                            pHP += 25;
+                        case 1: // Lion
+                            pTrans.isLion = true;
+                            pTrans.lioncountdown += m_lionInterval;
                             break;
-                        case 2:
-                            if (pGun.fireRate < 9)
-                                pGun.fireRate += 1;
+                        case 2: // Web
+                            pW += 1;
                             break;
                         default:
                             break;
@@ -463,10 +475,11 @@ void Scene_Easy::checkDogCollision() {// check for obstacle collision
 
 void Scene_Easy::checkGunCollision() {
     // Player Bullets
-    for (auto bullet: m_entityManager.getEntities("roarBlue")) {
+    for (auto bullet: m_entityManager.getEntities("roar")) {
         if (bullet->hasComponent<CTransform>() && bullet->hasComponent<CCollision>()) {
-            auto bPos = bullet->getComponent<CTransform>().pos;
-            auto bCr = bullet->getComponent<CCollision>().radius;
+            auto  bPos  = bullet->getComponent<CTransform>().pos;
+            auto  bCr   = bullet->getComponent<CCollision>().radius;
+            auto& bComp = bullet->getComponent<CRectShape>();
 
             for (auto e: m_entityManager.getEntities("enemy")) {
                 if (e->hasComponent<CTransform>() && e->hasComponent<CCollision>()) {
@@ -476,7 +489,7 @@ void Scene_Easy::checkGunCollision() {
                     if (dist(ePos, bPos) < (eCr + bCr)) {
                         auto& rComp = e->getComponent<CRectShape>();
                         
-                        e->getComponent<CHealth>().hp -= 20;
+                        e->getComponent<CHealth>().hp -= (bComp.name == "RoarRed"? 40 : 20);
                         bullet->destroy();
                         checkIfDead(e);
                         if (rComp.name == "BigCat")
@@ -539,21 +552,27 @@ void Scene_Easy::checkGunCollision() {
 }
 
 
-void Scene_Easy::checkMissileCollision() {// missiles
-    for (auto m: m_entityManager.getEntities("missile")) {
+void Scene_Easy::checkDogWebCollision() {// missiles
+    for (auto m: m_entityManager.getEntities("dogWeb")) {
         if (m->hasComponent<CTransform>() && m->hasComponent<CCollision>()) {
-            auto mPos = m->getComponent<CTransform>().pos;
-            auto mCr = m->getComponent<CCollision>().radius;
+            auto mPos   = m->getComponent<CTransform>().pos;
+            auto mCr    = m->getComponent<CCollision>().radius;
 
             for (auto e: m_entityManager.getEntities("enemy")) {
                 if (e->hasComponent<CTransform>() && e->hasComponent<CCollision>()) {
-                    auto ePos = e->getComponent<CTransform>().pos;
-                    auto eCr = e->getComponent<CCollision>().radius;
+                    auto& eTrans = e->getComponent<CTransform>();
+                    auto  ePos    = eTrans.pos;
+                    auto  eCr     = e->getComponent<CCollision>().radius;
 
                     if (dist(ePos, mPos) < (eCr + mCr)) {
-                        e->getComponent<CHealth>().hp = -1;
+                        e->getComponent<CHealth>().hp = 0;
                         m->destroy();
-                        checkIfDead(e);
+                        SoundPlayer::getInstance().play("Splash", ePos);
+                        eTrans.frozingcountdown = m_frozingInterval;
+                        eTrans.isFrozen = true;
+                        //auto& state = m_player->getComponent<CState>().state;
+                        //state = "stopped";
+                        //checkIfDead(e);
 
                         //int hPickup = hasPickup(rng);
                         //if (e->getComponent<CState>().state == "dead" && hPickup == 1) {
@@ -594,8 +613,7 @@ void Scene_Easy::registerActions() {
     registerAction(sf::Keyboard::S,     "DOWN");
     registerAction(sf::Keyboard::Down,  "DOWN");
 
-    //registerAction(sf::Keyboard::Space, "BARK");
-    registerAction(sf::Keyboard::M,     "LAUNCH");
+    registerAction(sf::Keyboard::Space,     "WEB");
     registerAction(sf::Mouse::Right,     "BARK");
 }
 
@@ -611,7 +629,7 @@ void Scene_Easy::spawnPlayer() {
     m_player->addComponent<CState>("straight");
     m_player->addComponent<CCollision>(30);
     m_player->addComponent<CInput>();
-    m_player->addComponent<CMissiles>();
+    m_player->addComponent<CWeb>();
     m_player->addComponent<CHealth>().hp = 100;
     auto &gun = m_player->addComponent<CGun>();
 
@@ -745,13 +763,10 @@ void Scene_Easy::update(sf::Time dt) {
     sCollisions();
     sGunUpdate(dt);
     sLifespan(dt);
-    //spawnEnemies();
-   /*sGunUpdate(dt);
+    sGuideWeb(dt);
+  
+   /*
     sAnimation(dt);
-    sGuideMissiles(dt);
-    sAutoPilot(dt);
-    spawnEnemies();
-
     sRemoveEntitiesOutOfGame();*/
 }
 
@@ -776,20 +791,16 @@ void Scene_Easy::sDoAction(const Action &action) {
         else if (action.name() == "TOGGLE_COLLISION") { m_drawAABB = !m_drawAABB; }
         else if (action.name() == "TOGGLE_GRID") { m_drawGrid = !m_drawGrid; }
 
-            // Player control
+        // Player control
         else if (action.name() == "LEFT") { m_player->getComponent<CInput>().left = true; }
         else if (action.name() == "RIGHT") { m_player->getComponent<CInput>().right = true; }
         else if (action.name() == "UP") { m_player->getComponent<CInput>().up = true; }
         else if (action.name() == "DOWN") { m_player->getComponent<CInput>().down = true; }
 
-            // firing weapons
-        //else if (action.name() == "BARK") { bark(); }
-        else if (action.name() == "LAUNCH") { fireMissile(); }
+        // firing weapons
+        else if (action.name() == "WEB") { launchWeb(); }
 
-    }
-
-        // on Key Release
-    else if (action.type() == "END") {
+    } else if (action.type() == "END") { // on Key Release
         if (action.name() == "LEFT") { 
             m_player->getComponent<CInput>().left = false; 
         }
@@ -804,9 +815,7 @@ void Scene_Easy::sDoAction(const Action &action) {
             bark(); 
         }
     }
-
 }
-
 
 void Scene_Easy::sRender() {
 
@@ -826,7 +835,6 @@ void Scene_Easy::sRender() {
             m_game->window().draw(sprite);
         }
     }
-
 
     for (auto e: m_entityManager.getEntities()) {
 
@@ -854,9 +862,9 @@ void Scene_Easy::sRender() {
             }
 
             // draw ammo count if missiles
-            if (e->hasComponent<CMissiles>()) {
-                int count = e->getComponent<CMissiles>().missileCount;
-                std::string str = "M: " + std::to_string(count);
+            if (e->hasComponent<CWeb>()) {
+                int count = e->getComponent<CWeb>().webCount;
+                std::string str = "WEB: " + std::to_string(count);
                 text.setString(str);
                 centerOrigin(text);
 
@@ -873,6 +881,16 @@ void Scene_Easy::sRender() {
                 centerOrigin(text);
 
                 sf::Vector2f offset(0.f, 70.f);
+                text.setPosition(tfm.pos + offset);
+                m_game->window().draw(text);
+            }
+
+            if (tfm.isLion) {
+                std::string str = "Lion";
+                text.setString(str);
+                centerOrigin(text);
+
+                sf::Vector2f offset(0.f, tfm.isFrozen ? 85.f : 70.f);
                 text.setPosition(tfm.pos + offset);
                 m_game->window().draw(text);
             }
@@ -906,15 +924,10 @@ void Scene_Easy::sRender() {
     if (m_drawAABB) {
         drawAABB();
     }
-
-
 }
 
-
 void Scene_Easy::sAnimation(sf::Time dt) {
-
     for (auto e: m_entityManager.getEntities()) {
-
         // draw the world
         if (e->getComponent<CAnimation>().has) {
             auto &anim = e->getComponent<CAnimation>();
@@ -925,19 +938,16 @@ void Scene_Easy::sAnimation(sf::Time dt) {
     }
 }
 
-
 void Scene_Easy::bark() {
     auto& pTrans = m_player->getComponent<CTransform>();
     if (!pTrans.isFrozen)
         m_player->getComponent<CGun>().isFiring = true;
     else {
         SoundPlayer::getInstance().play("Bump", pTrans.pos);
-    }
-        
+    }       
 }
 
-
-void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy, std::string animationType, float flipped) {
+void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy, std::string animationType, float flipped, bool isLion) {
     float speed = (isEnemy) ? m_barkSpeed : -m_barkSpeed;
     auto vb = getViewBounds();
     
@@ -945,17 +955,16 @@ void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy, std::string animat
     float collision = 0.f;
     float angle = 0.f;
     std::string bAnimation = "RoarBlue";
-    auto bullet = m_entityManager.addEntity(isEnemy ? "enemyBullet" : "roarBlue");
-    
+    auto bullet = m_entityManager.addEntity(isEnemy ? "enemyBullet" : "roar");   
 
     if (animationType == "Dog") {
         m_clickPosition.y = vb.top + m_clickPosition.y;
         auto targetDir = normalize(m_clickPosition - pos);
         bv = m_barkSpeed * normalize(targetDir + bv);
         angle = bearing(bv);
-        bAnimation = "RoarBlue";
+        bAnimation = isLion? "RoarRed":"RoarBlue";
         collision = 20;
-        SoundPlayer::getInstance().play("Bark", pos);
+        SoundPlayer::getInstance().play(isLion? "Lion": "Bark", pos);
     } else if (animationType == "GangsterCat") {
         bAnimation = "Bullet";
         bv.x = flipped? -300.f:300.f;
@@ -989,15 +998,10 @@ void Scene_Easy::createBullet(sf::Vector2f pos, bool isEnemy, std::string animat
         bullet->addComponent<CLifespan>(m_ballLifeSpan);
     }
 
-    
     bullet->addComponent<CTransform>(pos, bv, angle);
     bullet->addComponent<CAnimation>(m_game->assets().getAnimation(bAnimation));
     bullet->addComponent<CRectShape>(sf::Vector2f(0.f, 0.f), sf::Vector2f(0.f, 0.f), bAnimation);
     bullet->addComponent<CCollision>(collision);
-
-    //std::string sfx = (isEnemy) ? "EnemyGunfire" : "AlliedGunfire";
-    //SoundPlayer::getInstance().play("AlliedGunfire", pos);
-    //SoundPlayer::getInstance().play(sfx, pos);
 }
 
 
@@ -1019,8 +1023,9 @@ void Scene_Easy::sGunUpdate(sf::Time dt) {
             // when firing
             //
             auto& rComp = e->getComponent<CRectShape>();
-            auto& pos = e ->getComponent<CTransform>().pos;
-            auto vb = getViewBounds();
+            auto& trans = e ->getComponent<CTransform>();
+            auto  pos   = trans.pos;
+            auto  vb     = getViewBounds();
 
             if (gun.isFiring && gun.countdown < sf::Time::Zero && vb.top < pos.y && (vb.top + vb.height) > pos.y) {
                 gun.isFiring = false;
@@ -1040,33 +1045,31 @@ void Scene_Easy::sGunUpdate(sf::Time dt) {
 
                 auto pos = e->getComponent<CTransform>().pos;
                 
-                createBullet(pos, isEnemy, rComp.name, rComp.flipped);
-                
+                if ((isEnemy && !trans.isFrozen) || !isEnemy)
+                    createBullet(pos, isEnemy, rComp.name, rComp.flipped, trans.isLion);
             }
         }
     }
 }
 
-
-void Scene_Easy::fireMissile() {
-
-    if (m_player->hasComponent<CMissiles>()) {
-        size_t &ammo = m_player->getComponent<CMissiles>().missileCount;
+void Scene_Easy::launchWeb() {
+    if (m_player->hasComponent<CWeb>()) {
+        size_t &ammo = m_player->getComponent<CWeb>().webCount;
+        auto& pos = m_player->getComponent<CTransform>().pos;
         if (ammo > 0) {
             ammo -= 1;
-            auto pos = m_player->getComponent<CTransform>().pos;
+            
+            auto dogWeb = m_entityManager.addEntity("dogWeb");
 
-            auto missile = m_entityManager.addEntity("missile");
-            missile->addComponent<CTransform>(
+            dogWeb->addComponent<CTransform>(
                     pos + sf::Vector2f(0.f, -60.f),
-                    sf::Vector2f(0.f, -m_missileSpeed));
-            missile->addComponent<CAnimation>(m_game->assets().getAnimation("Missile"));
-            missile->addComponent<CCollision>(14);
+                    sf::Vector2f(0.f, -m_webSpeed));
+            dogWeb->addComponent<CAnimation>(m_game->assets().getAnimation("Web"));
+            dogWeb->addComponent<CCollision>(20);
 
-            //std::cout << "origin: " << missile->getComponent<CAnimation>().animation.getSprite().getOrigin()
-            //          << "\n";
-
-            //SoundPlayer::getInstance().play("LaunchMissile", pos);
+            SoundPlayer::getInstance().play("Web", pos);
+        } else {
+            SoundPlayer::getInstance().play("Bump", pos);
         }
     }
 }
@@ -1082,15 +1085,15 @@ void Scene_Easy::droppingAPickup(sf::Vector2f pos, std::string enemyType) {
         pickupType = flipPickupType(rng);
         switch (pickupType)
         {
-            case 0:
+            case 0: //Food
                 animation = "PowerUp1";
                 break;
-            case 1:
+            case 1: //Lion
                 animation = "PowerUp2";
                 break;
         }
     } else {
-        pickupType = 2;
+        pickupType = 2; //Web
         animation = "PowerUp3";
     }
     
@@ -1122,88 +1125,16 @@ sf::Vector2f Scene_Easy::findClosestEnemy(sf::Vector2f mPos) {
 }
 
 
-void Scene_Easy::sGuideMissiles(sf::Time dt) {
-
+void Scene_Easy::sGuideWeb(sf::Time dt) {
     const float approachRate = 800.f;
-    for (auto m: m_entityManager.getEntities("missile")) {
-
+    for (auto m: m_entityManager.getEntities("dogWeb")) {
         if (m->getComponent<CTransform>().has) {
             auto &tfm = m->getComponent<CTransform>();
             auto ePos = findClosestEnemy(tfm.pos);
 
             auto targetDir = normalize(ePos - tfm.pos);
-            tfm.vel = m_missileSpeed * normalize(approachRate * dt.asSeconds() * targetDir + tfm.vel);
-            tfm.rot = bearing(tfm.vel) + 90;
-        }
-    }
-}
-
-
-void Scene_Easy::spawnEnemies(std::string type, float offset, size_t numPlanes) {
-
-    auto bounds = getViewBounds();
-    float spacer = bounds.width / (1.0 + numPlanes);
-    sf::Vector2f pos(spacer, offset);
-    for (int i{0}; i < numPlanes; ++i) {
-        if ((bounds.top + m_worldView.getSize().y / 2.f) > 0) {
-            spawnEnemy(type, pos);
-            pos.x += spacer;
-        }
-    }
-
-}
-
-
-void Scene_Easy::spawnEnemy(std::string type, sf::Vector2f pos) {
-
-    auto vel = sf::Vector2f(0.f, m_enemySpeed);
-    float rotation = 180.f;
-
-    auto enemyPlane = m_entityManager.addEntity("enemy");
-    enemyPlane->addComponent<CTransform>(pos, vel, rotation);
-    enemyPlane->addComponent<CAnimation>(m_game->assets().getAnimation(type));
-    enemyPlane->addComponent<CCollision>(20);
-    enemyPlane->addComponent<CHealth>(100);
-
-    auto& ap = enemyPlane->addComponent<CAutoPilot>();
-    ap.bearings = m_enemyConfig[type].dirs;
-    ap.lengths = m_enemyConfig[type].times;
-
-    if (type == "Avenger")
-        enemyPlane->addComponent<CGun>();
-}
-
-
-void Scene_Easy::spawnEnemies() {
-    std::uniform_int_distribution<int> numberOfPlanes(3, 4);
-    std::uniform_int_distribution<int> typeOfPlane(0, 1);
-    std::exponential_distribution<float> nextSpawnPoint(1.f / 250.f);
-
-    auto bounds = getViewBounds();
-    static float next_spawn_point{bounds.top - 100};
-
-    if (next_spawn_point > bounds.top - 100) {
-        int num = numberOfPlanes(rng);
-        spawnEnemies((typeOfPlane(rng) == 0) ? "Avenger" : "Raptor", next_spawn_point, num);
-        next_spawn_point = bounds.top - 200.f - nextSpawnPoint(rng);
-    }
-
-}
-
-void Scene_Easy::sAutoPilot(const sf::Time &dt) {// autopilot big cat
-    for (auto e: m_entityManager.getEntities("enemy")) {
-        if (e->hasComponent<CAutoPilot>()) {
-            auto &ai = e->getComponent<CAutoPilot>();
-            ai.countdown -= dt;
-            if (ai.countdown < sf::Time::Zero)
-            {
-                ai.countdown = ai.lengths[ai.currentLeg];
-                ai.currentLeg = (ai.currentLeg + 1) % ai.legs;
-
-                auto &tfm = e->getComponent<CTransform>();
-                tfm.vel = length(tfm.vel) *  uVecFromBearing(90 + ai.bearings[ai.currentLeg]);
-            }
-
+            tfm.vel = m_webSpeed * normalize(approachRate * dt.asSeconds() * targetDir + tfm.vel);
+            tfm.rot = bearing(tfm.vel) + 270;
         }
     }
 }
