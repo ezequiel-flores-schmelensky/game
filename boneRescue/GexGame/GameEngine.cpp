@@ -45,26 +45,40 @@ void GameEngine::createMenu() {
     m_sceneMap[SceneID::MENU] = menuScene;
 
     // add items to menu_scene
-    menuScene->registerItem(SceneID::EASY, "Easy");
-    menuScene->registerItem(SceneID::NONE, "Normal");
-    menuScene->registerItem(SceneID::NONE, "Hard");
+    menuScene->registerItem(SceneID::EASY,   "Easy");
+    menuScene->registerItem(SceneID::NORMAL, "Normal");
+    menuScene->registerItem(SceneID::HARD,   "Hard");
 }
 
 
 void GameEngine::createFactories() {
     m_factories[SceneID::MENU] = std::function<Sptr()> (
-            [this]() -> Sptr {
-                return std::make_shared<Scene_Menu>(this);
-            });
+        [this]() -> Sptr {
+            return std::make_shared<Scene_Menu>(this);
+        }
+    );
 
     m_factories[SceneID::EASY] = std::function<Sptr()> (
-            [this]() -> Sptr {
-                return std::make_shared<Scene_Easy>(this, "../assets/easy.txt");
-            });
+        [this]() -> Sptr {
+            return std::make_shared<Scene_Easy>(this, "../assets/easy.txt");
+        }
+    );
+
+    m_factories[SceneID::NORMAL] = std::function<Sptr()>(
+        [this]() -> Sptr {
+            return std::make_shared<Scene_Easy>(this, "../assets/normal.txt");
+        }
+    );
+
+    m_factories[SceneID::HARD] = std::function<Sptr()>(
+        [this]() -> Sptr {
+            return std::make_shared<Scene_Easy>(this, "../assets/hard.txt");
+        }
+    );
 
     //m_factories[SceneID::FTR] = std::function<Sptr()> (
     //        [this]() -> Sptr {
-    //            return  std::make_shared<Scene_GexFighter>(this, "../assets/gexFighters.txt");
+    //            return  std::make_shared<Scene_GexFighter>(this, "../assets/config.txt");
     //        });
 }
 

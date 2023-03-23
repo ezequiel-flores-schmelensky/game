@@ -1,18 +1,11 @@
-
 World 1024     7000
 ScrollSpeed    150
 PlayerSpeed    250
-##EnemySpeed   100
+
 BarkSpeed      700
 WebSpeed       250
-##FireInterval 2
 
 Bkg Livingroom 	 0 0
-##Bkg Finish     0 0
-
-## auto pilot directions 5 (bearing time) pairs
-##Directions      Raptor    100 0.5    0 1     -100 1   0    1     100 0.5
-##Directions      Avenger   70 1.5   -70 1     0    3   70 1.5   -70     1
 
 ## Ostacles     Type            Rotation     xPos       yPos   Cr   
 Obstacle        Lamp               0	     900        6840    20
