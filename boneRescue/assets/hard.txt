@@ -87,40 +87,40 @@ Obstacle        Tv                 0         315        1000	40
 
 ## Enemies      Type        	Rotation    Flip     xPos    yPos  Cr   xVel   yVel   Health
 Enemy		GangsterCat        0         0       620    6700   20     105   0      20
-#Enemy		Dove		   0         0       140    6510   20    -105   0      40
+Enemy		Dove		   0         0       140    6510   20    -105   0      40
 Enemy		GangsterCat        0         1       500    6420   20	 -105   0      20
-#Enemy		Spider             0         0       880    6270   20     0     0      60
+Enemy		Spider             0         0       880    6270   20     0     0      60
 #Enemy		Spider             0         1       140    6270   20     0     0      60
 ########
 Enemy		GangsterCat        0         0       620    5900   20     105   0      20
-Enemy		Dove               0         0       140    5710   20    -105   0      40
+#Enemy		Dove               0         0       140    5710   20    -105   0      40
 Enemy		GangsterCat        0         1       500    5620   20    -105   0      20
-#Enemy		Spider             0         0       880    5470   20     0     0      60
-#Enemy		Spider             0         1       140    5470   20     0     0      60
+Enemy		Spider             0         0       880    5470   20     0     0      60
+Enemy		Spider             0         1       140    5470   20     0     0      60
 ########
 Enemy		GangsterCat        0         0       620    5100   20     105   0      20
 Enemy		Dove               0         0       140    4910   20    -105   0      40
-#Enemy		GangsterCat        0         1       500    4820   20    -105   0      20
-#Enemy		Spider             0         0       880    4670   20     0     0      60
+Enemy		GangsterCat        0         1       500    4820   20    -105   0      20
+Enemy		Spider             0         0       880    4670   20     0     0      60
 Enemy		Spider             0         1       140    4670   20     0     0      60
 ########
 Enemy		GangsterCat        0         0       620    4300   20     105   0      20
-#Enemy		Dove               0         0       140    4110   20    -105   0      40
+Enemy		Dove               0         0       140    4110   20    -105   0      40
 Enemy		GangsterCat        0         1       500    4020   20    -105   0      20
 Enemy		Spider             0         0       880    3870   20     0     0      60
-#Enemy		Spider             0         1       140    3870   20     0     0      60
+Enemy		Spider             0         1       140    3870   20     0     0      60
 ########
 Enemy		GangsterCat        0         0       620    3500   20     105   0      20
 Enemy		Dove               0         0       140    3310   20    -105   0      40
 Enemy		GangsterCat        0         1       500    3220   20    -105   0      20
-#Enemy		Spider             0         0       880    3070   20     0     0      60
+Enemy		Spider             0         0       880    3070   20     0     0      60
 Enemy		Spider             0         1       140    3070   20     0     0      60
 ########
 Enemy		GangsterCat        0         0       620    2700   20     105   0      20
 Enemy		Dove               0         0       140    2510   20    -105   0      40
 Enemy		GangsterCat        0         1       500    2420   20    -105   0      20
 Enemy		Spider             0         0       880    2270   20     0     0      60
-#Enemy		Spider             0         1       140    2270   20     0     0      60
+Enemy		Spider             0         1       140    2270   20     0     0      60
 ########
 Enemy		GangsterCat        0         0       620    1900   20     105   0      20
 Enemy		Dove               0         0       140    1710   20    -105   0      40
