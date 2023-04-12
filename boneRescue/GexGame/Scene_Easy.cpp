@@ -597,7 +597,7 @@ void Scene_Easy::registerActions() {
     //TODO register action FIRE to fire the gun
 
     registerAction(sf::Keyboard::P,      "PAUSE");
-    registerAction(sf::Keyboard::Escape, "BACK");
+    //registerAction(sf::Keyboard::Escape, "BACK");
     registerAction(sf::Keyboard::Q,      "QUIT");
 
     registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");
@@ -764,7 +764,7 @@ void Scene_Easy::update(sf::Time dt) {
     sGunUpdate(dt);
     sLifespan(dt);
     sGuideWeb(dt);
-  
+    //SoundPlayer::getInstance().removeStoppedSounds();
    /*
     sAnimation(dt);
     sRemoveEntitiesOutOfGame();*/
@@ -787,9 +787,9 @@ void Scene_Easy::sDoAction(const Action &action) {
         else if (action.name() == "QUIT") { m_game->quitLevel(); }
         else if (action.name() == "BACK") { m_game->backLevel(); }
 
-        else if (action.name() == "TOGGLE_TEXTURE") { m_drawTextures = !m_drawTextures; }
-        else if (action.name() == "TOGGLE_COLLISION") { m_drawAABB = !m_drawAABB; }
-        else if (action.name() == "TOGGLE_GRID") { m_drawGrid = !m_drawGrid; }
+        //else if (action.name() == "TOGGLE_TEXTURE") { m_drawTextures = !m_drawTextures; }
+        //else if (action.name() == "TOGGLE_COLLISION") { m_drawAABB = !m_drawAABB; }
+        //else if (action.name() == "TOGGLE_GRID") { m_drawGrid = !m_drawGrid; }
 
         // Player control
         else if (action.name() == "LEFT") { m_player->getComponent<CInput>().left = true; }
@@ -1038,15 +1038,20 @@ void Scene_Easy::sGunUpdate(sf::Time dt) {
                         gun.countdown = m_fireDoveInterval / (1.f + gun.fireRate);
                     else if (rComp.name == "Spider")
                         gun.countdown = m_fireSpiderInterval / (1.f + gun.fireRate);    
-                    else if (rComp.name == "BigCat")
+                    else if (rComp.name == "BigCat" && m_finalBoss && !m_enableScroll)
                         gun.countdown = m_fireBigCatInterval / (1.f + gun.fireRate);
                 } else
                     gun.countdown = m_fireInterval / (1.f + gun.fireRate);
 
                 auto pos = e->getComponent<CTransform>().pos;
                 
-                if ((isEnemy && !trans.isFrozen) || !isEnemy)
-                    createBullet(pos, isEnemy, rComp.name, rComp.flipped, trans.isLion);
+                if ((isEnemy && !trans.isFrozen) || !isEnemy) {
+                    if (rComp.name != "BigCat")
+                        createBullet(pos, isEnemy, rComp.name, rComp.flipped, trans.isLion);
+                    if (rComp.name == "BigCat" && m_finalBoss && !m_enableScroll)
+                        createBullet(pos, isEnemy, rComp.name, rComp.flipped, trans.isLion);
+                }
+                    
             }
         }
     }

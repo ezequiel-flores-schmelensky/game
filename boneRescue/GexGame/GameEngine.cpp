@@ -224,6 +224,7 @@ void  GameEngine::quitLevel() {
     MusicPlayer::getInstance().stop();
     MusicPlayer::getInstance().play("menuTheme");
     MusicPlayer::getInstance().setVolume(4);
+    SoundPlayer::getInstance().removeStoppedSounds();
     changeScene(SceneID::MENU, true);
 }
 
