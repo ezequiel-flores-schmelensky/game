@@ -163,6 +163,7 @@ void Scene_Easy::loadFromFile(const std::string &configPath) {
         config >> token;
     }
     config.close();
+    m_worldloaded = true;
 }
 
 
@@ -759,11 +760,13 @@ void Scene_Easy::update(sf::Time dt) {
     adjustPlayer();
     keepEntitiesInBounds();
     checkPlayerState();
-    sMovement(dt); 
+    if (m_worldloaded)
+        sMovement(dt); 
     sCollisions();
     sGunUpdate(dt);
     sLifespan(dt);
     sGuideWeb(dt);
+    
     //SoundPlayer::getInstance().removeStoppedSounds();
    /*
     sAnimation(dt);

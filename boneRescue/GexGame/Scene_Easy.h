@@ -40,7 +40,7 @@ private:
 
     sf::View                        m_worldView;
     sf::FloatRect                   m_worldBounds;
-    std::map<std::string, bool>        m_stopers{ {"T", false}, {"R", false}, {"L", false}, {"B", false} }; //top-right-left-bottom
+    std::map<std::string, bool>     m_stopers{ {"T", false}, {"R", false}, {"L", false}, {"B", false} }; //top-right-left-bottom
 
     float                           m_scrollSpeed;
     float                           m_playerSpeed;
@@ -66,6 +66,7 @@ private:
     bool				            m_drawGrid{false};
     bool				            m_finalBoss{false};
     bool				            m_enableScroll{true};
+    bool                            m_worldloaded{false};
 
     void	                        onEnd() override;
 
